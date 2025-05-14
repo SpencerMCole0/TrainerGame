@@ -43,8 +43,12 @@ class GameGUI:
             f"Weight: {self.player.weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
             f"Fatigue: {self.game_state.fatigue}/5",
-            f"Message: {self.message}"
         ]
+
+        if self.game_state.is_resting():
+            stats.append(f"⏳ Resting... {self.game_state.time_remaining()}s remaining")
+
+        stats.append(f"Message: {self.message}")
 
         for i, line in enumerate(stats):
             text = self.font.render(line, True, (255, 255, 255))
