@@ -9,6 +9,9 @@ class Player:
         self.min_rest_time = 1.0
         self.upgrades = []
 
+    def reduce_rest_time(self, amount):
+        self.base_rest_time = max(self.min_rest_time, self.base_rest_time - amount)
+
     def add_weight(self):
         self.total_weight += 5
         self.base_rest_time += 0.5
