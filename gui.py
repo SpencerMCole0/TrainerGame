@@ -54,6 +54,23 @@ class GameGUI:
             text = self.font.render(line, True, (255, 255, 255))
             self.screen.blit(text, (50, 50 + i * 30))
 
+        self.draw_cooldown_bar()
+
+    def draw_cooldown_bar(self):
+        # Only show if in cooldown
+        if not self.game_state.can_rep():
+            full_width = 600
+            height = 20
+            x = 100
+            y = 400
+
+            time_left = self.game_state.time_until_next_rep()
+            total = self.player.base_rest_time
+            fill_ratio = 1 - (time_left / total)
+
+            pygame.draw.rect(self.screen, (100, 100, 100), (x, y, full_width, height))  # Border
+            pygame.draw.rect(self.screen, (0, 200, 0), (x, y, int(full_width * fill_ratio), height))  # Fill
+
     def handle_event(self, event):
         for btn in self.buttons:
             btn.handle_event(event)
@@ -78,4 +95,3 @@ class GameGUI:
             self.message = "💉 Steroids used. Rest time reduced!"
         else:
             self.message = "💸 Not enough bucks for steroids!"
-
