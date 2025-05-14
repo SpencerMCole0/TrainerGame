@@ -45,7 +45,6 @@ class GameGUI:
 
     def draw(self):
         self.screen.fill((30, 30, 30))
-
         if self.in_store:
             self.draw_store()
         else:
@@ -76,23 +75,36 @@ class GameGUI:
         self.draw_cooldown_bar()
 
     def draw_store(self):
-        for btn in self.store_buttons:
-            btn.draw(self.screen)
+        screen_width = self.screen.get_width()
+        content_x = 50
+        content_y = 30
 
         title = self.font.render("🏪 Store", True, (255, 255, 0))
-        self.screen.blit(title, (50, 30))
+        self.screen.blit(title, (content_x, content_y))
 
-        y = 100
+        y = content_y + 50
         for key, item in self.store.get_items().items():
-            self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (50, y))
-            self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (50, y + 30))
+            name_line = f"{item.name} - ${item.cost}"
+            desc_line = item.description
+            self.screen.blit(self.font.render(name_line, True, (255, 255, 255)), (content_x, y))
+            self.screen.blit(self.font.render(desc_line, True, (180, 180, 180)), (content_x, y + 30))
             y += 70
 
         bucks_display = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
-        self.screen.blit(bucks_display, (50, y))
+        self.screen.blit(bucks_display, (content_x, y))
 
         message = self.font.render(self.message, True, (255, 255, 255))
-        self.screen.blit(message, (50, y + 40))
+        self.screen.blit(message, (content_x, y + 40))
+
+        # Adjust buttons to center on screen width
+        button_spacing = 20
+        total_button_width = sum([btn.rect.width for btn in self.store_buttons]) + button_spacing * (len(self.store_buttons) - 1)
+        start_x = (screen_width - total_button_width) // 2
+
+        for i, btn in enumerate(self.store_buttons):
+            btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
+            btn.rect.y = y + 100
+            btn.draw(self.screen)
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
@@ -105,8 +117,8 @@ class GameGUI:
             total = self.player.base_rest_time
             fill_ratio = 1 - (time_left / total)
 
-            pygame.draw.rect(self.screen, (100, 100, 100), (x, y, full_width, height))  # Background
-            pygame.draw.rect(self.screen, (0, 200, 0), (x, y, int(full_width * fill_ratio), height))  # Fill
+            pygame.draw.rect(self.screen, (100, 100, 100), (x, y, full_width, height))
+            pygame.draw.rect(self.screen, (0, 200, 0), (x, y, int(full_width * fill_ratio), height))
 
     def handle_event(self, event):
         active_buttons = self.store_buttons if self.in_store else self.buttons
