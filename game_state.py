@@ -3,34 +3,22 @@ import time
 class GameState:
     def __init__(self, player):
         self.player = player
-        self.fatigue = 0
-        self.rep_count = 0
-        self.resting_until = 0  # timestamp in seconds
+        self.last_rep_time = 0
 
-    def is_resting(self):
-        return time.time() < self.resting_until
+    def can_rep(self):
+        return time.time() - self.last_rep_time >= self.player.base_rest_time
 
-    def time_remaining(self):
-        remaining = self.resting_until - time.time()
-        return max(0, int(remaining))
+    def time_until_next_rep(self):
+        return max(0, int(self.player.base_rest_time - (time.time() - self.last_rep_time)))
 
     def perform_rep(self):
-        if self.is_resting():
-            return f"⏳ Resting... {self.time_remaining()}s left"
-        if self.fatigue >= 5:
-            return "😩 You're too fatigued. Rest first."
-        self.rep_count += 1
-        self.fatigue += 1
+        if not self.can_rep():
+            return f"⏳ Recovering... {self.time_until_next_rep()}s left"
+        self.last_rep_time = time.time()
+        self.player.reps += 1
         earned = self.player.weight // 5
         self.player.strength_bucks += earned
-        return f"✅ Rep completed! +${earned}"
+        return f"✅ Rep completed with {self.player.weight} lbs! +${earned}"
 
-    def rest(self, rest_seconds=5):
-        self.resting_until = time.time() + rest_seconds
-        if self.player.path == "weightlifting":
-            self.player.reps += 1
-        else:
-            self.player.weight += 5
-        self.fatigue = 0
-        self.rep_count = 0
-        return f"💤 Resting for {rest_seconds} seconds..."
+    def display_rest_time(self):
+        return f"Cooldown: {self.player.base_rest_time:.1f}s"

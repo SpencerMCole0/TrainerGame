@@ -29,8 +29,8 @@ class GameGUI:
 
         self.buttons = [
             Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font),
-            Button("Rest", 300, 450, 150, 50, self.rest, self.font),
-            # Store/Upgrade button can be added later
+            Button("Add Weight", 300, 450, 150, 50, self.add_weight, self.font),
+            Button("Use Steroids", 500, 450, 150, 50, self.use_steroids, self.font),
         ]
 
     def draw(self):
@@ -42,11 +42,11 @@ class GameGUI:
             f"Reps: {self.player.reps}",
             f"Weight: {self.player.weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Fatigue: {self.game_state.fatigue}/5",
+            f"Cooldown: {self.player.base_rest_time:.1f}s",
         ]
 
-        if self.game_state.is_resting():
-            stats.append(f"⏳ Resting... {self.game_state.time_remaining()}s remaining")
+        if not self.game_state.can_rep():
+            stats.append(f"⏳ Rest: {self.game_state.time_until_next_rep()}s remaining")
 
         stats.append(f"Message: {self.message}")
 
@@ -61,5 +61,21 @@ class GameGUI:
     def do_rep(self):
         self.message = self.game_state.perform_rep()
 
-    def rest(self):
-        self.message = self.game_state.rest()
+    def add_weight(self):
+        cost = 100
+        if self.player.strength_bucks >= cost:
+            self.player.strength_bucks -= cost
+            self.player.add_weight()
+            self.message = "🏋️‍♂️ Added 5 lbs to barbell!"
+        else:
+            self.message = "💸 Not enough bucks for weight!"
+
+    def use_steroids(self):
+        cost = 250
+        if self.player.strength_bucks >= cost:
+            self.player.strength_bucks -= cost
+            self.player.use_steroids()
+            self.message = "💉 Steroids used. Rest time reduced!"
+        else:
+            self.message = "💸 Not enough bucks for steroids!"
+
