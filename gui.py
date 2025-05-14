@@ -1,4 +1,5 @@
 import pygame
+from store import Store
 
 class Button:
     def __init__(self, text, x, y, w, h, callback, font):
@@ -27,6 +28,7 @@ class GameGUI:
         self.font = pygame.font.SysFont("arial", 24)
         self.message = ""
         self.in_store = False
+        self.store = Store()
 
         self.buttons = [
             Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font),
@@ -77,22 +79,17 @@ class GameGUI:
         title = self.font.render("🏪 Store", True, (255, 255, 0))
         self.screen.blit(title, (50, 30))
 
-        descs = [
-            "Buy Weight: Increases barbell by +5 lbs",
-            "Also increases cooldown by 0.5s",
-            "Buy Steroids: Decreases cooldown by 1s",
-            "Minimum cooldown = 1s"
-        ]
-
-        for i, line in enumerate(descs):
-            text = self.font.render(line, True, (255, 255, 255))
-            self.screen.blit(text, (50, 100 + i * 30))
+        y = 100
+        for key, item in self.store.get_items().items():
+            self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (50, y))
+            self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (50, y + 30))
+            y += 70
 
         bucks_display = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
-        self.screen.blit(bucks_display, (50, 250))
+        self.screen.blit(bucks_display, (50, y))
 
         message = self.font.render(self.message, True, (255, 255, 255))
-        self.screen.blit(message, (50, 300))
+        self.screen.blit(message, (50, y + 40))
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
@@ -121,19 +118,7 @@ class GameGUI:
         self.message = self.game_state.perform_rep()
 
     def buy_weight(self):
-        cost = 100
-        if self.player.strength_bucks >= cost:
-            self.player.strength_bucks -= cost
-            self.player.add_weight()
-            self.message = "🏋️ Bought 5 lbs!"
-        else:
-            self.message = "💸 Not enough bucks!"
+        self.message = self.store.purchase("weight", self.player)
 
     def buy_steroids(self):
-        cost = 250
-        if self.player.strength_bucks >= cost:
-            self.player.strength_bucks -= cost
-            self.player.use_steroids()
-            self.message = "💉 Used steroids!"
-        else:
-            self.message = "💸 Not enough bucks!"
+        self.message = self.store.purchase("steroids", self.player)
