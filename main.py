@@ -5,10 +5,11 @@ from game_state import GameState
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode((800, 600), pygame.RESIZABLE)
     pygame.display.set_caption("TrainerGame")
 
-    career_path = "weightlifting"  # Default for now (make selectable later)
+    # Default career path for now
+    career_path = "weightlifting"
     player = Player(career_path)
     game_state = GameState(player)
     gui = GameGUI(screen, player, game_state)
@@ -23,6 +24,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.VIDEORESIZE:
+                screen = pygame.display.set_mode(event.size, pygame.RESIZABLE)
+                gui.screen = screen  # Update GUI's reference to new screen size
             gui.handle_event(event)
 
         pygame.display.flip()
