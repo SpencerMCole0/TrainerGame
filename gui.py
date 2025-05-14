@@ -33,6 +33,8 @@ class GameGUI:
         self.buttons = [
             Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font),
             Button("Open Store", 300, 450, 150, 50, self.toggle_store, self.font),
+            Button("- Weight", 100, 510, 150, 40, self.decrease_barbell, self.font),
+            Button("+ Weight", 300, 510, 150, 40, self.increase_barbell, self.font),
         ]
 
         self.store_buttons = [
@@ -56,7 +58,8 @@ class GameGUI:
         stats = [
             f"Path: {self.player.path.title()}",
             f"Reps: {self.player.reps}",
-            f"Weight: {self.player.weight} lbs",
+            f"Total Owned Weight: {self.player.total_weight} lbs",
+            f"Barbell Weight: {self.player.barbell_weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
             f"Cooldown: {self.player.base_rest_time:.1f}s",
         ]
@@ -122,3 +125,9 @@ class GameGUI:
 
     def buy_steroids(self):
         self.message = self.store.purchase("steroids", self.player)
+
+    def increase_barbell(self):
+        self.message = self.player.increase_barbell()
+
+    def decrease_barbell(self):
+        self.message = self.player.decrease_barbell()
