@@ -55,15 +55,24 @@ class GameGUI:
         y += 40
 
         self.buttons = []
-        self.buttons.append(Button(x, y, "🟩 Recovery", lambda: self.set_tab("recovery"),
+        self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"),
                                    highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 130, y, "☑ Training", lambda: self.set_tab("training"),
-                                   highlight=(self.store_tab == "training")))
+        self.buttons.append(Button(x + 150, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"),
+                                   highlight=(self.store_tab == "sponsorship")))
+        self.buttons.append(Button(x + 320, y, "🏋️ Weights", lambda: self.set_tab("weights"),
+                                   highlight=(self.store_tab == "weights")))
         y += 50
 
         grouped = self.store.get_grouped_items()
         all_items = self.store.get_items()
-        keys = grouped[0] if self.store_tab == "recovery" else grouped[1]
+
+        if self.store_tab == "recovery":
+            keys = grouped[0]
+        elif self.store_tab == "sponsorship":
+            keys = grouped[1]
+        else:
+            keys = grouped[2]
+
         items = [all_items[key] for key in keys]
 
         for item in items:
@@ -78,7 +87,6 @@ class GameGUI:
             self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (x, y))
             y += 30
 
-        # Layout buttons responsively
         screen_width = self.screen.get_width()
         current_x = 20
         current_y = y + 30
@@ -100,7 +108,6 @@ class GameGUI:
                                        disabled=disabled))
             current_x += text_width + 10
 
-        # Back button
         self.buttons.append(Button(screen_width // 2 - 60, current_y + row_height + 20, "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:

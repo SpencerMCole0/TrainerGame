@@ -9,7 +9,7 @@ class StoreItem:
 
     def can_buy(self, player):
         if self.limit is not None and self.times_bought >= self.limit:
-            return False, "🔒 Limit reached for this recovery method."
+            return False, "🔒 Limit reached for this item."
         if player.strength_bucks < self.cost:
             return False, "💸 Not enough bucks!"
         return True, ""
@@ -25,82 +25,36 @@ class StoreItem:
 
 class Store:
     def __init__(self):
-        # 🧃 Recovery Items
-        recovery_items = {
-            "protein": StoreItem(
-                name="Protein Shake",
-                cost=50,
-                description="-0.25s rest time (Max 5)",
-                action=lambda p: p.reduce_rest_time(0.25),
-                limit=5
-            ),
-            "icebath": StoreItem(
-                name="Ice Bath",
-                cost=100,
-                description="-0.5s rest time (Max 3)",
-                action=lambda p: p.reduce_rest_time(0.5),
-                limit=3
-            ),
-            "massage": StoreItem(
-                name="Massage",
-                cost=200,
-                description="-1.0s rest time",
-                action=lambda p: p.reduce_rest_time(1.0)
-            ),
-            "sauna": StoreItem(
-                name="Sauna",
-                cost=400,
-                description="-1.5s rest time",
-                action=lambda p: p.reduce_rest_time(1.5)
-            ),
-            "steroids": StoreItem(
-                name="Use Steroids",
-                cost=250,
-                description="Reduce rest time by 1s (min 1s)",
-                action=lambda p: p.use_steroids()
-            )
+        self.recovery_items = {
+            "protein": StoreItem("Protein Shake", 50, "-0.25s rest time (Max 5)", lambda p: p.reduce_rest_time(0.25), limit=5),
+            "icebath": StoreItem("Ice Bath", 100, "-0.5s rest time (Max 3)", lambda p: p.reduce_rest_time(0.5), limit=3),
+            "massage": StoreItem("Massage", 200, "-1.0s rest time", lambda p: p.reduce_rest_time(1.0)),
+            "sauna": StoreItem("Sauna", 400, "-1.5s rest time", lambda p: p.reduce_rest_time(1.5)),
+            "steroids": StoreItem("Use Steroids", 250, "Reduce rest time by 1s (min 1s)", lambda p: p.use_steroids())
         }
 
-        # 🏋️ Training Items
-        training_items = {
-            "weight": StoreItem(
-                name="Add Weight",
-                cost=100,
-                description="Add +5 lbs to barbell (slower reps)",
-                action=lambda p: p.add_weight()
-            ),
-            "accessory": StoreItem(
-                name="Accessory Work",
-                cost=150,
-                description="Earn +1 buck per rep",
-                action=lambda p: p.add_income_boost(1)
-            ),
-            "competition": StoreItem(
-                name="Competition",
-                cost=300,
-                description="Earn +2 bucks per rep",
-                action=lambda p: p.add_income_boost(2)
-            ),
-            "sponsor": StoreItem(
-                name="Sponsorship Deal",
-                cost=500,
-                description="Earn +5 bucks per rep",
-                action=lambda p: p.add_income_boost(5)
-            )
+        self.sponsorship_items = {
+            "accessory": StoreItem("Accessory Work", 150, "Earn +1 buck per rep", lambda p: p.add_income_boost(1)),
+            "competition": StoreItem("Competition", 300, "Earn +2 bucks per rep", lambda p: p.add_income_boost(2)),
+            "sponsor": StoreItem("Sponsorship Deal", 500, "Earn +5 bucks per rep", lambda p: p.add_income_boost(5))
         }
 
-        self.items = {**recovery_items, **training_items}
-        self.recovery_keys = list(recovery_items.keys())
-        self.training_keys = list(training_items.keys())
-
-    def get_items(self):
-        return self.items
+        self.weight_items = {
+            "weight": StoreItem("Add Weight", 100, "Add +5 lbs to barbell (slower reps)", lambda p: p.add_weight())
+        }
 
     def get_grouped_items(self):
-        return self.recovery_keys, self.training_keys
+        return [
+            list(self.recovery_items.keys()),
+            list(self.sponsorship_items.keys()),
+            list(self.weight_items.keys())
+        ]
+
+    def get_items(self):
+        return {**self.recovery_items, **self.sponsorship_items, **self.weight_items}
 
     def purchase(self, key, player):
-        item = self.items.get(key)
-        if not item:
-            return "❌ Invalid item."
-        return item.buy(player)
+        all_items = self.get_items()
+        if key in all_items:
+            return all_items[key].buy(player)
+        return "❌ Item not found!"
