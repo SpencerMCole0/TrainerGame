@@ -15,6 +15,7 @@ class GameGUI:
         self.large_font = pygame.font.SysFont(None, 32)
         self.buttons = []
         self.message = ""
+        self.game = None  # To be set after initialization for screen switching
 
     def draw(self):
         self.screen.fill((30, 30, 30))
@@ -56,6 +57,11 @@ class GameGUI:
                                    disabled=self.player.barbell_weight <= 45))
         self.buttons.append(Button(220, y + 90, 100, 40, self.font, "+ Weight", self.add_weight,
                                    disabled=self.player.barbell_weight >= self.player.total_weight))
+
+        # Save, Load, and Exit buttons
+        self.buttons.append(Button(50, y + 140, 100, 40, self.font, "Save Game", self.save_game))
+        self.buttons.append(Button(160, y + 140, 100, 40, self.font, "Load Game", self.load_game))
+        self.buttons.append(Button(270, y + 140, 150, 40, self.font, "Exit to Menu", self.exit_to_menu))
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -149,6 +155,20 @@ class GameGUI:
 
     def purchase(self, item):
         self.message = item.buy(self.player)
+
+    def save_game(self):
+        self.player.save()
+        self.message = "Game saved!"
+
+    def load_game(self):
+        self.player.load()
+        self.message = "Game loaded!"
+
+    def exit_to_menu(self):
+        self.player.save()
+        if self.game:
+            self.game.current_screen = self.game.home_screen
+        self.message = ""
 
     def handle_event(self, event):
         for btn in self.buttons:

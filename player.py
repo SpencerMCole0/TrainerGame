@@ -1,3 +1,6 @@
+import json
+import os
+
 class Player:
     def __init__(self, path):
         self.path = path
@@ -27,3 +30,31 @@ class Player:
 
     def earn_bucks(self):
         return (self.barbell_weight // 5) + self.extra_bucks_per_rep
+
+    def to_dict(self):
+            return {
+                "path": self.path,
+                "reps": self.reps,
+                "strength_bucks": self.strength_bucks,
+                "total_weight": self.total_weight,
+                "barbell_weight": self.barbell_weight,
+                "extra_bucks_per_rep": self.extra_bucks_per_rep,
+            }
+
+    def from_dict(self, data):
+        self.path = data.get("path", self.path)
+        self.reps = data.get("reps", self.reps)
+        self.strength_bucks = data.get("strength_bucks", self.strength_bucks)
+        self.total_weight = data.get("total_weight", self.total_weight)
+        self.barbell_weight = data.get("barbell_weight", self.barbell_weight)
+        self.extra_bucks_per_rep = data.get("extra_bucks_per_rep", self.extra_bucks_per_rep)
+
+    def save(self, filename="savegame.json"):
+        with open(filename, "w") as f:
+            json.dump(self.to_dict(), f)
+
+    def load(self, filename="savegame.json"):
+        if os.path.exists(filename):
+            with open(filename, "r") as f:
+                data = json.load(f)
+                self.from_dict(data)
