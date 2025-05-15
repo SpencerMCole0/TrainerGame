@@ -93,17 +93,20 @@ class GameGUI:
         bucks_display = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
         self.screen.blit(bucks_display, (content_x, y))
 
+        y += 40
         message = self.font.render(self.message, True, (255, 255, 255))
-        self.screen.blit(message, (content_x, y + 40))
+        self.screen.blit(message, (content_x, y))
 
-        # Adjust buttons to center on screen width
+        y += 80  # space before buttons
+
+        # Center the buttons horizontally
         button_spacing = 20
         total_button_width = sum([btn.rect.width for btn in self.store_buttons]) + button_spacing * (len(self.store_buttons) - 1)
         start_x = (screen_width - total_button_width) // 2
 
         for i, btn in enumerate(self.store_buttons):
             btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
-            btn.rect.y = y + 100
+            btn.rect.y = y
             btn.draw(self.screen)
 
     def draw_cooldown_bar(self):
