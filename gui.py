@@ -50,12 +50,13 @@ class GameGUI:
             self.draw_game()
 
     def draw_game(self):
-        self.buttons = []  # rebuild dynamically based on availability
+        self.buttons = []
 
         do_rep_btn = Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font)
         open_store_btn = Button("Open Store", 300, 450, 150, 50, self.toggle_store, self.font)
 
-        can_decrease = self.player.barbell_weight > 0
+        # ✅ Fix: enforce minimum barbell weight of 45 lbs
+        can_decrease = self.player.barbell_weight > 45
         can_increase = self.player.total_weight > self.player.barbell_weight
 
         dec_color = (200, 200, 200) if can_decrease else (100, 100, 100)
@@ -94,7 +95,6 @@ class GameGUI:
         content_x = 50
         content_y = 60
 
-        # Draw tabs
         for tab in self.tab_buttons:
             if (tab.text == "🧃 Recovery" and self.active_tab == "recovery") or \
                (tab.text == "🏋️ Training" and self.active_tab == "training"):
@@ -124,7 +124,6 @@ class GameGUI:
         y += 60
         self.page_buttons = []
 
-        # Store item buttons
         item_buttons = []
         for key in keys_to_render:
             item = self.store.items[key]
@@ -135,9 +134,10 @@ class GameGUI:
             can_afford, _ = item.can_buy(self.player)
             color = (200, 200, 200) if can_afford else (100, 100, 100)
 
+            # ✅ Fix: widen button to prevent text overflow
             btn = Button(
                 f"Buy {item.name} (${item.cost})",
-                0, 0, 280, 50,
+                0, 0, 320, 50,
                 make_callback(key),
                 self.font,
                 enabled=can_afford,
@@ -145,7 +145,7 @@ class GameGUI:
             )
             item_buttons.append(btn)
 
-        # Layout item buttons in rows
+        # Layout item buttons
         buttons_per_row = 3
         spacing = 20
         row_height = 50
@@ -162,7 +162,6 @@ class GameGUI:
 
         self.page_buttons = item_buttons.copy()
 
-        # Draw back button on its own row
         y += ((len(item_buttons) + buttons_per_row - 1) // buttons_per_row) * (row_height + spacing) + 10
         back_btn = Button("Back to Gym", (screen_width - 180) // 2, y, 180, 50, self.toggle_store, self.font, color=(255, 100, 100))
         back_btn.draw(self.screen)
