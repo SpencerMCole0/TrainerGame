@@ -76,7 +76,7 @@ class CareerPathScreen:
     def select_path(self, path):
         self.game.player.path = path
         if getattr(self.game.settings_screen, "start_with_money", False):
-            self.game.player.strength_bucks += 1000
+            self.game.player.strength_bucks += 100000
         self.game.current_screen = self.game.gui  # Switch to main game GUI
 
     def goto_home(self):
@@ -121,7 +121,7 @@ class SettingsScreen:
 
     def toggle_start_with_money(self):
         self.start_with_money = not self.start_with_money
-        self.buttons[1].label = f"Start With $1000: {'ON' if self.start_with_money else 'OFF'}"
+        self.buttons[1].label = f"Start With $100000: {'ON' if self.start_with_money else 'OFF'}"
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
