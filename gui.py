@@ -47,6 +47,8 @@ class GameGUI:
 
         self.buttons = []
 
+        self.draw_barbell(x + 50, y + 250)  # adjust position as needed
+        
         cooldown = self.player.get_current_rest_time()
         elapsed = time.time() - self.game_state.last_rep_time
         fill_ratio = min(elapsed / cooldown, 1.0)
@@ -196,3 +198,31 @@ class GameGUI:
         if self.game:
             self.game.current_screen = self.game.save_slots_screen
         self.message = ""
+
+    def draw_barbell(self, x, y):
+        BAR_LENGTH = 300
+        BAR_HEIGHT = 20
+        PLATE_WIDTH = 20
+        PLATE_HEIGHT = 40
+        BASE_WEIGHT = 45
+        PLATE_WEIGHT = 5
+
+        # Draw the bar (centered)
+        bar_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
+        pygame.draw.rect(self.screen, (80, 80, 80), bar_rect)  # gray bar
+
+        # Calculate plates count per side
+        extra_weight = max(0, self.player.barbell_weight - BASE_WEIGHT)
+        plates_per_side = int(extra_weight // (2 * PLATE_WEIGHT))  # divide by 2 sides
+
+        # Draw plates on left side
+        for i in range(plates_per_side):
+            plate_x = x - PLATE_WIDTH * (i + 1)
+            plate_rect = pygame.Rect(plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT)
+            pygame.draw.rect(self.screen, (200, 0, 0), plate_rect)  # red plates
+
+        # Draw plates on right side
+        for i in range(plates_per_side):
+            plate_x = x + BAR_LENGTH + PLATE_WIDTH * i
+            plate_rect = pygame.Rect(plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT)
+            pygame.draw.rect(self.screen, (200, 0, 0), plate_rect)  # red plates
