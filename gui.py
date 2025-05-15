@@ -31,7 +31,7 @@ class GameGUI:
             f"Total Owned Weight: {self.player.total_weight} lbs",
             f"Barbell Weight: {self.player.barbell_weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.base_rest_time, 1)}s",
+            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
             f"Message: {self.message}"
         ]
         for label in labels:

@@ -1,39 +1,25 @@
 class Player:
     def __init__(self, path):
         self.path = path
-        self.strength_bucks = 0
         self.reps = 0
-        self.total_weight = 135  # total owned
-        self.barbell_weight = 135  # current selected weight
-        self.base_rest_time = 5.0
+        self.strength_bucks = 0
+        self.total_weight = 135
+        self.barbell_weight = 135
+        self.extra_bucks_per_rep = 0
+        self.base_weight = 135
         self.min_rest_time = 1.0
-        self.extra_bucks_per_rep = 0
-        self.recovery_bonus = 0.0
-        self.extra_bucks_per_rep = 0
-        self.upgrades = []
-        
+        self.rest_reduction = 0.0
+        self.recovery_items_purchased = {}
 
-    def reduce_rest_time(self, amount):
-        self.base_rest_time = max(self.min_rest_time, self.base_rest_time - amount)
-
-    def add_weight(self):
-        self.total_weight += 5
-        self.base_rest_time += 0.5
-
-    def use_steroids(self):
-        self.base_rest_time = max(self.min_rest_time, self.base_rest_time - 1.0)
-
-    def increase_barbell(self):
-        if self.barbell_weight + 5 <= self.total_weight:
-            self.barbell_weight += 5
-            return "⬆️ Increased barbell weight."
-        return "❌ You don't own enough weight."
-
-    def decrease_barbell(self):
-        if self.barbell_weight - 5 >= 45:  # Min barbell weight
-            self.barbell_weight -= 5
-            return "⬇️ Decreased barbell weight."
-        return "❌ Barbell can't go lower."
+    def get_current_rest_time(self):
+        base_time = 5.0 * (self.barbell_weight / self.base_weight)
+        return max(self.min_rest_time, base_time - self.rest_reduction)
 
     def add_income_boost(self, amount):
         self.extra_bucks_per_rep += amount
+
+    def reduce_rest_time(self, amount):
+        self.rest_reduction += amount
+
+    def earn_bucks(self):
+        return (self.barbell_weight // 5) + self.extra_bucks_per_rep
