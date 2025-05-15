@@ -85,8 +85,8 @@ class GameGUI:
         screen_width = self.screen.get_width()
         current_x = 40
         current_y = y + 20
-        row_height = 85
-        col_width = 180
+        row_height = 105
+        col_width = 200
         padding = 20
         items_per_row = max(1, (screen_width - padding * 2) // col_width)
 
