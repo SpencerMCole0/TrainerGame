@@ -2,13 +2,13 @@ import pygame
 from store import Store
 
 class Button:
-    def __init__(self, text, x, y, w, h, callback, font, enabled=True):
+    def __init__(self, text, x, y, w, h, callback, font, enabled=True, color=None):
         self.text = text
         self.rect = pygame.Rect(x, y, w, h)
         self.callback = callback
         self.font = font
-        self.color = (200, 200, 200)
         self.enabled = enabled
+        self.color = color if color else (200, 200, 200)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -123,21 +123,28 @@ class GameGUI:
             can_afford, _ = item.can_buy(self.player)
             color = (200, 200, 200) if can_afford else (100, 100, 100)
 
+            # wider buttons for better text fit
             btn = Button(
                 f"Buy {item.name} (${item.cost})",
-                0, 0, 240, 50,
+                0, 0, 280, 50,
                 make_callback(key),
                 self.font,
-                enabled=can_afford
+                enabled=can_afford,
+                color=color
             )
-            btn.color = color
             self.page_buttons.append(btn)
 
-        # Add back button
-        back_btn = Button("Back to Gym", 0, 0, 150, 50, self.toggle_store, self.font)
-        self.page_buttons.append(back_btn)
+        # Add "Back to Gym" button (its own row, styled red)
+        back_btn = Button(
+            "Back to Gym",
+            0, 0, 180, 50,
+            self.toggle_store,
+            self.font,
+            enabled=True,
+            color=(255, 100, 100)
+        )
 
-        # Layout buttons in rows of 3
+        # Layout item buttons in rows of 3
         buttons_per_row = 3
         button_spacing = 20
         row_spacing = 20
@@ -154,6 +161,14 @@ class GameGUI:
                 btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
                 btn.rect.y = current_y
                 btn.draw(self.screen)
+
+        # Draw back button on its own row
+        back_btn.rect.x = (screen_width - back_btn.rect.width) // 2
+        back_btn.rect.y = y + total_rows * (button_height + row_spacing) + 10
+        back_btn.draw(self.screen)
+
+        # Add back_btn to page_buttons so it's clickable
+        self.page_buttons.append(back_btn)
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
