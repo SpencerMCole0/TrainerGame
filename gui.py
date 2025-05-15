@@ -2,12 +2,13 @@ import pygame
 from store import Store
 
 class Button:
-    def __init__(self, text, x, y, w, h, callback, font):
+    def __init__(self, text, x, y, w, h, callback, font, enabled=True):
         self.text = text
         self.rect = pygame.Rect(x, y, w, h)
         self.callback = callback
         self.font = font
         self.color = (200, 200, 200)
+        self.enabled = enabled
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
@@ -16,9 +17,10 @@ class Button:
         screen.blit(text_surface, text_surface.get_rect(center=self.rect.center))
 
     def handle_event(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                self.callback()
+        if not self.enabled:
+            return
+        if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
+            self.callback()
 
 class GameGUI:
     def __init__(self, screen, player, game_state):
@@ -108,30 +110,50 @@ class GameGUI:
         y += 40
         self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (content_x, y))
 
-        y += 80
+        y += 60
         self.page_buttons = []
 
+        # Create store item buttons with correct afford status
         for key in keys_to_render:
             item = self.store.items[key]
 
             def make_callback(k):
                 return lambda: self.buy_item(k)
 
-            btn = Button(f"Buy {item.name} (${item.cost})", 0, 0, 240, 50, make_callback(key), self.font)
+            can_afford, _ = item.can_buy(self.player)
+            color = (200, 200, 200) if can_afford else (100, 100, 100)
+
+            btn = Button(
+                f"Buy {item.name} (${item.cost})",
+                0, 0, 240, 50,
+                make_callback(key),
+                self.font,
+                enabled=can_afford
+            )
+            btn.color = color
             self.page_buttons.append(btn)
 
-        # Always add the back button
+        # Add back button
         back_btn = Button("Back to Gym", 0, 0, 150, 50, self.toggle_store, self.font)
         self.page_buttons.append(back_btn)
 
+        # Layout buttons in rows of 3
+        buttons_per_row = 3
         button_spacing = 20
-        total_button_width = sum(btn.rect.width for btn in self.page_buttons) + button_spacing * (len(self.page_buttons) - 1)
-        start_x = (screen_width - total_button_width) // 2
+        row_spacing = 20
+        button_height = 50
+        total_rows = (len(self.page_buttons) + buttons_per_row - 1) // buttons_per_row
 
-        for i, btn in enumerate(self.page_buttons):
-            btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
-            btn.rect.y = y
-            btn.draw(self.screen)
+        for row in range(total_rows):
+            row_buttons = self.page_buttons[row * buttons_per_row: (row + 1) * buttons_per_row]
+            total_row_width = sum(btn.rect.width for btn in row_buttons) + button_spacing * (len(row_buttons) - 1)
+            start_x = (screen_width - total_row_width) // 2
+            current_y = y + row * (button_height + row_spacing)
+
+            for i, btn in enumerate(row_buttons):
+                btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
+                btn.rect.y = current_y
+                btn.draw(self.screen)
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
