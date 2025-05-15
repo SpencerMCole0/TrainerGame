@@ -2,6 +2,22 @@ import pygame
 from utils import Button
 
 class HomeScreen:
+    def create_buttons(self):
+        w, h = self.screen.get_size()
+        mid_x = w // 2
+        start_y = h // 3
+        gap = 80
+        self.buttons = [
+            Button(mid_x - 100, start_y, 200, 50, self.font, "Career Path", self.goto_career_path),
+            Button(mid_x - 100, start_y + gap, 200, 50, self.font, "Load Game", self.load_game),
+            Button(mid_x - 100, start_y + 2 * gap, 200, 50, self.font, "Settings", self.goto_settings),
+            Button(mid_x - 100, start_y + 3 * gap, 200, 50, self.font, "How to Play", self.goto_how_to_play),
+        ]
+
+    def load_game(self):
+        self.game.player.load()
+        self.game.current_screen = self.game.gui
+
     def __init__(self, screen, game):
         self.screen = screen
         self.game = game

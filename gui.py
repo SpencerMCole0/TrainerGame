@@ -160,10 +160,6 @@ class GameGUI:
         self.player.save()
         self.message = "Game saved!"
 
-    def load_game(self):
-        self.player.load()
-        self.message = "Game loaded!"
-
     def exit_to_menu(self):
         self.player.save()
         if self.game:
