@@ -1,5 +1,5 @@
 import pygame
-from store import store_items
+from store import Store
 from utils import Button
 
 class GameGUI:
