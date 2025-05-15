@@ -1,3 +1,27 @@
+class StoreItem:
+    def __init__(self, name, cost, description, action, limit=None):
+        self.name = name
+        self.cost = cost
+        self.description = description
+        self.action = action
+        self.limit = limit
+        self.times_bought = 0
+
+    def can_buy(self, player):
+        if self.limit is not None and self.times_bought >= self.limit:
+            return False, "🔒 Limit reached for this recovery method."
+        if player.strength_bucks < self.cost:
+            return False, "💸 Not enough bucks!"
+        return True, ""
+
+    def buy(self, player):
+        can_buy, msg = self.can_buy(player)
+        if not can_buy:
+            return msg
+        player.strength_bucks -= self.cost
+        self.times_bought += 1
+        return self.action(player)
+
 class Store:
     def __init__(self):
         recovery_items = {
