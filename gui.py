@@ -192,7 +192,7 @@ class GameGUI:
             btn.handle_event(event)
 
     def save_and_exit(self):
-        self.player.save()
+    # Instead of immediate save, open SaveSlotsScreen to pick a slot
         if self.game:
-            self.game.current_screen = self.game.home_screen
-        self.message = "Game saved and exited!"
+            self.game.current_screen = self.game.save_slots_screen
+        self.message = ""

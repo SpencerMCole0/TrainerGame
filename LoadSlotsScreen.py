@@ -52,3 +52,10 @@ class LoadSlotsScreen:
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
+    
+    def save_slot(self, slot_num):
+        filename = f"save_slot{slot_num}.json"
+        self.game.player.save(filename=filename)
+        self.game.current_screen = self.game.home_screen  # Exit to home after saving
+        self.game.gui.message = f"Game saved to Slot {slot_num} and exited!"
+
