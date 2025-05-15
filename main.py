@@ -39,8 +39,10 @@ def main():
         @current_screen.setter
         def current_screen(self, screen):
             self._current_screen = screen
-            if hasattr(screen, "on_show"):
+            # Only call on_show if screen.game is assigned
+            if hasattr(screen, "on_show") and getattr(screen, "game", None) is not None:
                 screen.on_show()
+
 
     game = GameContext()
     game.player = player

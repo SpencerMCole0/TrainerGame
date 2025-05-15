@@ -2,14 +2,14 @@ import json
 import os
 
 class Player:
-     def reset(self):
+    def reset(self):
         self.path = "No Path"
         self.reps = 0
         self.strength_bucks = 0
         self.total_weight = 135
         self.barbell_weight = 135
         self.extra_bucks_per_rep = 0
-        
+
     def __init__(self, path):
         self.path = path
         self.reps = 0
@@ -40,14 +40,14 @@ class Player:
         return (self.barbell_weight // 5) + self.extra_bucks_per_rep
 
     def to_dict(self):
-            return {
-                "path": self.path,
-                "reps": self.reps,
-                "strength_bucks": self.strength_bucks,
-                "total_weight": self.total_weight,
-                "barbell_weight": self.barbell_weight,
-                "extra_bucks_per_rep": self.extra_bucks_per_rep,
-            }
+        return {
+            "path": self.path,
+            "reps": self.reps,
+            "strength_bucks": self.strength_bucks,
+            "total_weight": self.total_weight,
+            "barbell_weight": self.barbell_weight,
+            "extra_bucks_per_rep": self.extra_bucks_per_rep,
+        }
 
     def from_dict(self, data):
         self.path = data.get("path", self.path)
