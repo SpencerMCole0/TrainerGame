@@ -1,4 +1,6 @@
 # Utility functions like colored output or save/load helpers
+import pygame
+
 class Button:
     def __init__(self, x, y, text, callback, disabled=False, color=None, highlight=False):
         self.text = text
