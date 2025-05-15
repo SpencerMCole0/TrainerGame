@@ -75,19 +75,21 @@ class CareerPathScreen:
 
     def select_path(self, path):
         self.game.player.path = path
+        if getattr(self.game.settings_screen, "start_with_money", False):
+            self.game.player.strength_bucks += 1000
         self.game.current_screen = self.game.gui  # Switch to main game GUI
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
-
 
 class SettingsScreen:
     def __init__(self, screen, game):
         self.screen = screen
         self.game = game
         self.font = pygame.font.SysFont(None, 28)
-        self.buttons = []
         self.cheats_enabled = False
+        self.start_with_money = False
+        self.buttons = []
         self.create_buttons()
 
     def create_buttons(self):
@@ -96,8 +98,9 @@ class SettingsScreen:
         start_y = h // 3
         gap = 60
         self.buttons = [
-            Button(mid_x - 130, start_y, 260, 50, self.font, "Toggle Cheats: OFF", self.toggle_cheats),
-            Button(mid_x - 130, start_y + gap, 260, 50, self.font, "Back to Menu", self.goto_home),
+            Button(mid_x - 130, start_y, 260, 50, self.font, f"Toggle Cheats: {'OFF'}", self.toggle_cheats),
+            Button(mid_x - 130, start_y + gap, 260, 50, self.font, f"Start With $1000: {'OFF'}", self.toggle_start_with_money),
+            Button(mid_x - 130, start_y + 2*gap, 260, 50, self.font, "Back to Menu", self.goto_home),
         ]
 
     def draw(self):
@@ -114,10 +117,11 @@ class SettingsScreen:
 
     def toggle_cheats(self):
         self.cheats_enabled = not self.cheats_enabled
-        if self.cheats_enabled:
-            self.game.player.strength_bucks += 1000
-        # Update button label
         self.buttons[0].label = f"Toggle Cheats: {'ON' if self.cheats_enabled else 'OFF'}"
+
+    def toggle_start_with_money(self):
+        self.start_with_money = not self.start_with_money
+        self.buttons[1].label = f"Start With $1000: {'ON' if self.start_with_money else 'OFF'}"
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
