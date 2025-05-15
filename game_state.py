@@ -6,30 +6,15 @@ class GameState:
         self.last_rep_time = 0
 
     def can_rep(self):
-        return time.time() - self.last_rep_time >= self.player.base_rest_time
-
-    def time_until_next_rep(self):
-        remaining = self.player.base_rest_time - (time.time() - self.last_rep_time)
-        return max(0, round(remaining, 1))
-
-    def calculate_rest_time(self, weight):
-        if weight <= 135:
-            return 1.0 + (weight - 45) / 90 * 4.0  # Linear scaling from 1s (45 lbs) to 5s (135 lbs)
-        else:
-            return 5.0 + (0.5 * (weight - 135)**0.5)  # Logarithmic-like growth
+        return time.time() - self.last_rep_time >= self.player.get_current_rest_time()
 
     def perform_rep(self):
         if not self.can_rep():
-            return "⏳ Still resting..."
-
-        earned = self.player.barbell_weight // 5 + self.player.extra_bucks_per_rep
-        self.player.strength_bucks += earned
-        self.player.reps += 1
-
-        # Scale rest time with barbell weight
-        base = self.calculate_rest_time(self.player.barbell_weight)
-        recovery = self.player.recovery_bonus
-        self.player.base_rest_time = max(1.0, base - recovery)
+            return "⏳ Resting..."
 
         self.last_rep_time = time.time()
-        return f"✅ Rep done! Earned ${earned}."
+        self.player.reps += 1
+        earned = self.player.earn_bucks()
+        self.player.strength_bucks += earned
+
+        return f"🏋️‍♂️ Rep done! Earned ${earned}."
