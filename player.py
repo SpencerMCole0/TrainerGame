@@ -7,6 +7,7 @@ class Player:
         self.barbell_weight = 135  # current selected weight
         self.base_rest_time = 5.0
         self.min_rest_time = 1.0
+        self.extra_bucks_per_rep = 0
         self.upgrades = []
 
     def reduce_rest_time(self, amount):
