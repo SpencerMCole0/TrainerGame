@@ -9,6 +9,13 @@ class HomeScreen:
         self.buttons = []
         self.create_buttons()
 
+    def on_show(self):
+        # Reset player and any game state here
+        self.game.player.reset()
+        if hasattr(self.game, "game_state"):
+            if hasattr(self.game.game_state, "reset"):
+                self.game.game_state.reset()
+
     def create_buttons(self):
         w, h = self.screen.get_size()
         mid_x = w // 2
@@ -22,6 +29,7 @@ class HomeScreen:
         ]
 
     def draw(self):
+        self.on_show()
         self.screen.fill((20, 20, 30))
         title = self.font.render("Trainer Game", True, (255, 255, 255))
         title_rect = title.get_rect(center=(self.screen.get_width() // 2, 100))

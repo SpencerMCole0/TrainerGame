@@ -2,6 +2,14 @@ import json
 import os
 
 class Player:
+     def reset(self):
+        self.path = "No Path"
+        self.reps = 0
+        self.strength_bucks = 0
+        self.total_weight = 135
+        self.barbell_weight = 135
+        self.extra_bucks_per_rep = 0
+        
     def __init__(self, path):
         self.path = path
         self.reps = 0

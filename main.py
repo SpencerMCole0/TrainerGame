@@ -29,7 +29,18 @@ def main():
 
     # Game context to hold shared state and screen refs
     class GameContext:
-        pass
+        def __init__(self):
+            self._current_screen = None
+
+        @property
+        def current_screen(self):
+            return self._current_screen
+
+        @current_screen.setter
+        def current_screen(self, screen):
+            self._current_screen = screen
+            if hasattr(screen, "on_show"):
+                screen.on_show()
 
     game = GameContext()
     game.player = player
