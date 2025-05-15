@@ -22,7 +22,7 @@ class GameState:
         if not self.can_rep():
             return "⏳ Still resting..."
 
-        earned = self.player.weight // 5 + self.player.extra_bucks_per_rep
+        earned = self.player.barbell_weight // 5 + self.player.extra_bucks_per_rep
         self.player.strength_bucks += earned
         self.player.reps += 1
 
