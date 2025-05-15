@@ -41,6 +41,7 @@ class HomeScreen:
     def goto_how_to_play(self):
         self.game.current_screen = self.game.how_to_play_screen
 
+
 class CareerPathScreen:
     def __init__(self, screen, game):
         self.screen = screen
@@ -74,10 +75,11 @@ class CareerPathScreen:
 
     def select_path(self, path):
         self.game.player.path = path
-        self.game.current_screen = self.game.gui  # Switch to main game gui
+        self.game.current_screen = self.game.gui  # Switch to main game GUI
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
+
 
 class SettingsScreen:
     def __init__(self, screen, game):
@@ -112,17 +114,14 @@ class SettingsScreen:
 
     def toggle_cheats(self):
         self.cheats_enabled = not self.cheats_enabled
-        # For example, add bucks when cheat enabled
         if self.cheats_enabled:
             self.game.player.strength_bucks += 1000
-        else:
-            # Optionally reset bucks or do nothing
-            pass
-        # Update button text
+        # Update button label
         self.buttons[0].label = f"Toggle Cheats: {'ON' if self.cheats_enabled else 'OFF'}"
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
+
 
 class HowToPlayScreen:
     def __init__(self, screen, game):

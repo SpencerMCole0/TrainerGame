@@ -5,7 +5,7 @@ from game_state import GameState
 from gui import GameGUI
 from utils import Button
 
-# Import your new screens (adjust path if needed)
+# Import your screen classes
 from screens import HomeScreen, CareerPathScreen, SettingsScreen, HowToPlayScreen
 
 def main():
@@ -13,28 +13,37 @@ def main():
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Trainer Game")
 
-    # Initialize player, game state, GUI
+    # Initialize player, game state, and main GUI
     player = Player("No Path")
     game_state = GameState(player)
     gui = GameGUI(screen, player, game_state)
 
-    # Instantiate screens
-    home_screen = HomeScreen(screen, None)  # pass None first, will update below
+    # Create screen instances
+    home_screen = HomeScreen(screen, None)
     career_path_screen = CareerPathScreen(screen, None)
     settings_screen = SettingsScreen(screen, None)
     how_to_play_screen = HowToPlayScreen(screen, None)
 
-    # Reference back to game for screens
-    home_screen.game = career_path_screen.game = settings_screen.game = how_to_play_screen.game = type('', (), {})()
-    home_screen.game.player = player
-    home_screen.game.current_screen = home_screen
-    home_screen.game.career_path_screen = career_path_screen
-    home_screen.game.settings_screen = settings_screen
-    home_screen.game.how_to_play_screen = how_to_play_screen
-    home_screen.game.gui = gui
+    # Create a dummy game object to hold shared state and screen references
+    class GameContext:
+        pass
 
-    current_screen = home_screen
-    home_screen.game.current_screen = current_screen
+    game = GameContext()
+    game.player = player
+    game.game_state = game_state
+    game.gui = gui
+    game.home_screen = home_screen
+    game.career_path_screen = career_path_screen
+    game.settings_screen = settings_screen
+    game.how_to_play_screen = how_to_play_screen
+    game.current_screen = home_screen
+
+    # Assign game context to each screen for navigation and shared state
+    home_screen.game = game
+    career_path_screen.game = game
+    settings_screen.game = game
+    how_to_play_screen.game = game
+    gui.game = game  # if needed in gui
 
     clock = pygame.time.Clock()
 
@@ -43,11 +52,9 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            current_screen.handle_event(event)
+            game.current_screen.handle_event(event)
 
-        current_screen = home_screen.game.current_screen  # update current screen pointer
-        current_screen.draw()
-
+        game.current_screen.draw()
         pygame.display.flip()
         clock.tick(60)
 
