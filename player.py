@@ -9,7 +9,9 @@ class Player:
         self.min_rest_time = 1.0
         self.extra_bucks_per_rep = 0
         self.recovery_bonus = 0.0
+        self.extra_bucks_per_rep = 0
         self.upgrades = []
+        
 
     def reduce_rest_time(self, amount):
         self.base_rest_time = max(self.min_rest_time, self.base_rest_time - amount)
@@ -32,3 +34,6 @@ class Player:
             self.barbell_weight -= 5
             return "⬇️ Decreased barbell weight."
         return "❌ Barbell can't go lower."
+
+    def add_income_boost(self, amount):
+        self.extra_bucks_per_rep += amount
