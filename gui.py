@@ -81,12 +81,8 @@ class GameGUI:
                                    highlight=(self.store_tab == "weights")))
         y += 50
 
-        # DEBUG: print store tab and item keys
-        print(f"Store tab: {self.store_tab}")
         all_items = self.store.get_items()
         grouped = self.store.get_grouped_items()
-        print(f"All items keys: {list(all_items.keys())}")
-        print(f"Grouped keys: {grouped}")
 
         if self.store_tab == "recovery":
             keys = grouped[0]
