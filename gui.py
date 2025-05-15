@@ -33,12 +33,7 @@ class GameGUI:
         self.active_tab = "recovery"
         self.store = Store()
 
-        self.buttons = [
-            Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font),
-            Button("Open Store", 300, 450, 150, 50, self.toggle_store, self.font),
-            Button("- Weight", 100, 510, 150, 40, self.decrease_barbell, self.font),
-            Button("+ Weight", 300, 510, 150, 40, self.increase_barbell, self.font),
-        ]
+        self.buttons = []
 
         self.tab_buttons = [
             Button("🧃 Recovery", 50, 10, 150, 40, lambda: self.set_tab("recovery"), self.font),
@@ -55,6 +50,22 @@ class GameGUI:
             self.draw_game()
 
     def draw_game(self):
+        self.buttons = []  # rebuild dynamically based on availability
+
+        do_rep_btn = Button("Do Rep", 100, 450, 150, 50, self.do_rep, self.font)
+        open_store_btn = Button("Open Store", 300, 450, 150, 50, self.toggle_store, self.font)
+
+        can_decrease = self.player.barbell_weight > 0
+        can_increase = self.player.total_weight > self.player.barbell_weight
+
+        dec_color = (200, 200, 200) if can_decrease else (100, 100, 100)
+        inc_color = (200, 200, 200) if can_increase else (100, 100, 100)
+
+        dec_btn = Button("- Weight", 100, 510, 150, 40, self.decrease_barbell, self.font, enabled=can_decrease, color=dec_color)
+        inc_btn = Button("+ Weight", 300, 510, 150, 40, self.increase_barbell, self.font, enabled=can_increase, color=inc_color)
+
+        self.buttons.extend([do_rep_btn, open_store_btn, dec_btn, inc_btn])
+
         for btn in self.buttons:
             btn.draw(self.screen)
 
@@ -113,7 +124,8 @@ class GameGUI:
         y += 60
         self.page_buttons = []
 
-        # Create store item buttons with correct afford status
+        # Store item buttons
+        item_buttons = []
         for key in keys_to_render:
             item = self.store.items[key]
 
@@ -123,7 +135,6 @@ class GameGUI:
             can_afford, _ = item.can_buy(self.player)
             color = (200, 200, 200) if can_afford else (100, 100, 100)
 
-            # wider buttons for better text fit
             btn = Button(
                 f"Buy {item.name} (${item.cost})",
                 0, 0, 280, 50,
@@ -132,42 +143,29 @@ class GameGUI:
                 enabled=can_afford,
                 color=color
             )
-            self.page_buttons.append(btn)
+            item_buttons.append(btn)
 
-        # Add "Back to Gym" button (its own row, styled red)
-        back_btn = Button(
-            "Back to Gym",
-            0, 0, 180, 50,
-            self.toggle_store,
-            self.font,
-            enabled=True,
-            color=(255, 100, 100)
-        )
-
-        # Layout item buttons in rows of 3
+        # Layout item buttons in rows
         buttons_per_row = 3
-        button_spacing = 20
-        row_spacing = 20
-        button_height = 50
-        total_rows = (len(self.page_buttons) + buttons_per_row - 1) // buttons_per_row
+        spacing = 20
+        row_height = 50
+        for i, btn in enumerate(item_buttons):
+            row = i // buttons_per_row
+            col = i % buttons_per_row
+            row_items = item_buttons[row * buttons_per_row: (row + 1) * buttons_per_row]
+            row_width = sum(b.rect.width for b in row_items) + spacing * (len(row_items) - 1)
+            start_x = (screen_width - row_width) // 2
+            x = start_x + col * (btn.rect.width + spacing)
+            y_pos = y + row * (row_height + spacing)
+            btn.rect.topleft = (x, y_pos)
+            btn.draw(self.screen)
 
-        for row in range(total_rows):
-            row_buttons = self.page_buttons[row * buttons_per_row: (row + 1) * buttons_per_row]
-            total_row_width = sum(btn.rect.width for btn in row_buttons) + button_spacing * (len(row_buttons) - 1)
-            start_x = (screen_width - total_row_width) // 2
-            current_y = y + row * (button_height + row_spacing)
-
-            for i, btn in enumerate(row_buttons):
-                btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
-                btn.rect.y = current_y
-                btn.draw(self.screen)
+        self.page_buttons = item_buttons.copy()
 
         # Draw back button on its own row
-        back_btn.rect.x = (screen_width - back_btn.rect.width) // 2
-        back_btn.rect.y = y + total_rows * (button_height + row_spacing) + 10
+        y += ((len(item_buttons) + buttons_per_row - 1) // buttons_per_row) * (row_height + spacing) + 10
+        back_btn = Button("Back to Gym", (screen_width - 180) // 2, y, 180, 50, self.toggle_store, self.font, color=(255, 100, 100))
         back_btn.draw(self.screen)
-
-        # Add back_btn to page_buttons so it's clickable
         self.page_buttons.append(back_btn)
 
     def draw_cooldown_bar(self):
