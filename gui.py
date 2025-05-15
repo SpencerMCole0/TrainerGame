@@ -58,12 +58,13 @@ class GameGUI:
         self.buttons.append(Button(220, y + 90, 100, 40, self.font, "+ Weight", self.add_weight,
                                    disabled=self.player.barbell_weight >= self.player.total_weight))
 
-        self.buttons.append(Button(50, y + 140, 100, 40, self.font, "Save Game", self.save_game))
+        # Changed Save Game button to open Save Slots screen
+        self.buttons.append(Button(50, y + 140, 100, 40, self.font, "Save Game", self.open_save_slots))
         self.buttons.append(Button(160, y + 140, 150, 40, self.font, "Exit to Menu", self.exit_to_menu))
 
         for btn in self.buttons:
             btn.draw(self.screen)
-
+            
     def draw_store(self):
         x, y = 30, 30
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (x, y))

@@ -16,7 +16,7 @@ class HomeScreen:
         gap = 80
         self.buttons = [
             Button(mid_x - 100, start_y, 200, 50, self.font, "Career Path", self.goto_career_path),
-            Button(mid_x - 100, start_y + gap, 200, 50, self.font, "Load Game", self.load_game),
+            Button(mid_x - 100, start_y + gap, 200, 50, self.font, "Load Game", self.open_load_slots),
             Button(mid_x - 100, start_y + 2 * gap, 200, 50, self.font, "Settings", self.goto_settings),
             Button(mid_x - 100, start_y + 3 * gap, 200, 50, self.font, "How to Play", self.goto_how_to_play),
         ]
@@ -36,9 +36,8 @@ class HomeScreen:
     def goto_career_path(self):
         self.game.current_screen = self.game.career_path_screen
 
-    def load_game(self):
-        self.game.player.load()
-        self.game.current_screen = self.game.gui  # Switch to main game GUI
+    def open_load_slots(self):
+        self.game.current_screen = self.game.load_slots_screen
 
     def goto_settings(self):
         self.game.current_screen = self.game.settings_screen
@@ -129,7 +128,6 @@ class SettingsScreen:
 
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
-
 
 class HowToPlayScreen:
     def __init__(self, screen, game):
