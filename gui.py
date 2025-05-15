@@ -64,7 +64,7 @@ class GameGUI:
         for btn in self.buttons:
             btn.draw(self.screen)
 
-   def draw_store(self):
+    def draw_store(self):
         x, y = 30, 30
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (x, y))
         y += 40
