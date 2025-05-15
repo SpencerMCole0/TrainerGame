@@ -4,6 +4,7 @@ from player import Player
 from game_state import GameState
 from gui import GameGUI
 from utils import Button
+
 from screens import HomeScreen, CareerPathScreen, SettingsScreen, HowToPlayScreen
 from SaveSlotsScreen import SaveSlotsScreen
 from LoadSlotsScreen import LoadSlotsScreen
@@ -18,7 +19,7 @@ def main():
     game_state = GameState(player)
     gui = GameGUI(screen, player, game_state)
 
-    # Instantiate screens
+    # Instantiate all screens
     home_screen = HomeScreen(screen, None)
     career_path_screen = CareerPathScreen(screen, None)
     settings_screen = SettingsScreen(screen, None)
@@ -26,7 +27,7 @@ def main():
     save_slots_screen = SaveSlotsScreen(screen, None)
     load_slots_screen = LoadSlotsScreen(screen, None)
 
-    # Create a context to hold shared state and screen references
+    # Game context to hold shared state and screen refs
     class GameContext:
         pass
 
@@ -42,7 +43,7 @@ def main():
     game.load_slots_screen = load_slots_screen
     game.current_screen = home_screen
 
-    # Inject game context into all screens and GUI for navigation and data access
+    # Pass game context to all screens and GUI
     home_screen.game = game
     career_path_screen.game = game
     settings_screen.game = game
