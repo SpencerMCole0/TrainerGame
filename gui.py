@@ -91,7 +91,7 @@ class GameGUI:
         items_per_row = max(1, (screen_width - padding * 2) // col_width)
 
         for i, item in enumerate(items):
-            label = f"Buy (${item.cost})"
+            label = "MAXED" if item.times_bought >= item.limit else f"Buy ({item.times_bought}/{item.limit})"
             effect = item.description
             can_afford = item.can_buy(self.player)[0]
             disabled = not can_afford

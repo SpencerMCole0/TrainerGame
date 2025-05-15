@@ -26,32 +26,30 @@ class StoreItem:
 class Store:
     def __init__(self):
         self.recovery_items = {
-            "recovery1": StoreItem("Recovery #1", 50, "-0.2s rest time", lambda p: p.reduce_rest_time(0.2)),
-            "recovery2": StoreItem("Recovery #2", 100, "-0.4s rest time", lambda p: p.reduce_rest_time(0.4)),
-            "recovery3": StoreItem("Recovery #3", 150, "-0.6s rest time", lambda p: p.reduce_rest_time(0.6)),
-            "recovery4": StoreItem("Recovery #4", 200, "-0.8s rest time", lambda p: p.reduce_rest_time(0.8)),
-            "recovery5": StoreItem("Recovery #5", 250, "-1.0s rest time", lambda p: p.reduce_rest_time(1.0)),
-            "recovery6": StoreItem("Recovery #6", 300, "-1.2s rest time", lambda p: p.reduce_rest_time(1.2)),
-            "recovery7": StoreItem("Recovery #7", 350, "-1.4s rest time", lambda p: p.reduce_rest_time(1.4)),
-            "recovery8": StoreItem("Recovery #8", 400, "-1.6s rest time", lambda p: p.reduce_rest_time(1.6)),
-            "recovery9": StoreItem("Recovery #9", 450, "-1.8s rest time", lambda p: p.reduce_rest_time(1.8)),
-            "recovery10": StoreItem("Recovery #10", 500, "-2.0s rest time", lambda p: p.reduce_rest_time(2.0)),
+            "recovery1": StoreItem("Recovery #1", 50, "-0.2s rest time", lambda p: p.reduce_rest_time(0.2), limit=200),
+            "recovery2": StoreItem("Recovery #2", 100, "-0.4s rest time", lambda p: p.reduce_rest_time(0.4), limit=180),
+            "recovery3": StoreItem("Recovery #3", 150, "-0.6s rest time", lambda p: p.reduce_rest_time(0.6), limit=160),
+            "recovery4": StoreItem("Recovery #4", 200, "-0.8s rest time", lambda p: p.reduce_rest_time(0.8), limit=140),
+            "recovery5": StoreItem("Recovery #5", 250, "-1.0s rest time", lambda p: p.reduce_rest_time(1.0), limit=120),
+            "recovery6": StoreItem("Recovery #6", 300, "-1.2s rest time", lambda p: p.reduce_rest_time(1.2), limit=100),
+            "recovery7": StoreItem("Recovery #7", 350, "-1.4s rest time", lambda p: p.reduce_rest_time(1.4), limit=80),
+            "recovery8": StoreItem("Recovery #8", 400, "-1.6s rest time", lambda p: p.reduce_rest_time(1.6), limit=60),
+            "recovery9": StoreItem("Recovery #9", 450, "-1.8s rest time", lambda p: p.reduce_rest_time(1.8), limit=40),
+            "recovery10": StoreItem("Recovery #10", 500, "-2.0s rest time", lambda p: p.reduce_rest_time(2.0), limit=20),
         }
-
 
         self.sponsorship_items = {
-            "placeholder1": StoreItem("Placeholder #1", 50, "Earn +$5 bucks per rep", lambda p: p.add_income_boost(5)),
-            "placeholder2": StoreItem("Placeholder #2", 100, "Earn +$10 bucks per rep", lambda p: p.add_income_boost(10)),
-            "placeholder3": StoreItem("Placeholder #3", 150, "Earn +$15 bucks per rep", lambda p: p.add_income_boost(15)),
-            "placeholder4": StoreItem("Placeholder #4", 200, "Earn +$20 bucks per rep", lambda p: p.add_income_boost(20)),
-            "placeholder5": StoreItem("Placeholder #5", 250, "Earn +$25 bucks per rep", lambda p: p.add_income_boost(25)),
-            "placeholder6": StoreItem("Placeholder #6", 300, "Earn +$30 bucks per rep", lambda p: p.add_income_boost(30)),
-            "placeholder7": StoreItem("Placeholder #7", 350, "Earn +$35 bucks per rep", lambda p: p.add_income_boost(35)),
-            "placeholder8": StoreItem("Placeholder #8", 400, "Earn +$40 bucks per rep", lambda p: p.add_income_boost(40)),
-            "placeholder9": StoreItem("Placeholder #9", 450, "Earn +$45 bucks per rep", lambda p: p.add_income_boost(45)),
-            "placeholder10": StoreItem("Placeholder #10", 500, "Earn +$50 bucks per rep", lambda p: p.add_income_boost(50)),
+            "placeholder1": StoreItem("Placeholder #1", 50, "Earn +$5 bucks per rep", lambda p: p.add_income_boost(5), limit=200),
+            "placeholder2": StoreItem("Placeholder #2", 100, "Earn +$10 bucks per rep", lambda p: p.add_income_boost(10), limit=180),
+            "placeholder3": StoreItem("Placeholder #3", 150, "Earn +$15 bucks per rep", lambda p: p.add_income_boost(15), limit=160),
+            "placeholder4": StoreItem("Placeholder #4", 200, "Earn +$20 bucks per rep", lambda p: p.add_income_boost(20), limit=140),
+            "placeholder5": StoreItem("Placeholder #5", 250, "Earn +$25 bucks per rep", lambda p: p.add_income_boost(25), limit=120),
+            "placeholder6": StoreItem("Placeholder #6", 300, "Earn +$30 bucks per rep", lambda p: p.add_income_boost(30), limit=100),
+            "placeholder7": StoreItem("Placeholder #7", 350, "Earn +$35 bucks per rep", lambda p: p.add_income_boost(35), limit=80),
+            "placeholder8": StoreItem("Placeholder #8", 400, "Earn +$40 bucks per rep", lambda p: p.add_income_boost(40), limit=60),
+            "placeholder9": StoreItem("Placeholder #9", 450, "Earn +$45 bucks per rep", lambda p: p.add_income_boost(45), limit=40),
+            "placeholder10": StoreItem("Placeholder #10", 500, "Earn +$50 bucks per rep", lambda p: p.add_income_boost(50), limit=20),
         }
-
 
         self.weight_items = {
             "weight": StoreItem("Add Weight", 100, "Add +5 lbs to barbell (slower reps)", lambda p: p.add_weight())
