@@ -56,11 +56,11 @@ class GameGUI:
 
         self.buttons = []
         self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"),
-                                   highlight=(self.store_tab == "recovery")))
+                                highlight=(self.store_tab == "recovery")))
         self.buttons.append(Button(x + 150, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"),
-                                   highlight=(self.store_tab == "sponsorship")))
+                                highlight=(self.store_tab == "sponsorship")))
         self.buttons.append(Button(x + 320, y, "🏋️ Weights", lambda: self.set_tab("weights"),
-                                   highlight=(self.store_tab == "weights")))
+                                highlight=(self.store_tab == "weights")))
         y += 50
 
         grouped = self.store.get_grouped_items()
@@ -83,33 +83,34 @@ class GameGUI:
             y += 30
 
         screen_width = self.screen.get_width()
-        current_x = 20
+        current_x = 40
         current_y = y + 20
-        row_height = 75
+        row_height = 85
+        col_width = 180
         padding = 20
+        items_per_row = max(1, (screen_width - padding * 2) // col_width)
 
-        for item in items:
+        for i, item in enumerate(items):
             label = f"Buy (${item.cost})"
             effect = item.description
-            text_width = max(self.font.size(label)[0], self.font.size(effect)[0]) + 40
             can_afford = item.can_buy(self.player)[0]
             disabled = not can_afford
 
-            if current_x + text_width > screen_width - padding:
-                current_x = padding
-                current_y += row_height
+            col = i % items_per_row
+            row = i // items_per_row
 
-            # Draw effect description above button
-            self.screen.blit(self.font.render(effect, True, (200, 200, 200)), (current_x, current_y - 20))
+            item_x = padding + col * col_width
+            item_y = current_y + row * row_height
 
-            self.buttons.append(Button(current_x, current_y, label,
-                                       lambda i=item: self.purchase(i),
-                                       disabled=disabled))
-            current_x += text_width + 10
+            self.screen.blit(self.font.render(effect, True, (200, 200, 200)), (item_x, item_y - 20))
 
-        # Back button
-        self.buttons.append(Button(screen_width // 2 - 60, current_y + row_height + 20,
-                                   "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
+            self.buttons.append(Button(item_x, item_y, label,
+                                    lambda i=item: self.purchase(i),
+                                    disabled=disabled))
+
+        # Back to gym button centered on its own row
+        self.buttons.append(Button(screen_width // 2 - 60, item_y + row_height + 20,
+                                "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:
             btn.draw(self.screen)
