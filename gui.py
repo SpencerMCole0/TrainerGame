@@ -66,11 +66,14 @@ class GameGUI:
         y += 40
 
         self.buttons = []
-        self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"),
+        self.buttons.append(Button(x, y, 150, 40, self.font, "🧃 Recovery",
+                                   callback=lambda: self.set_tab("recovery"),
                                    highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 160, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"),
+        self.buttons.append(Button(x + 160, y, 150, 40, self.font, "📢 Sponsorships",
+                                   callback=lambda: self.set_tab("sponsorship"),
                                    highlight=(self.store_tab == "sponsorship")))
-        self.buttons.append(Button(x + 340, y, "🏋️ Weights", lambda: self.set_tab("weights"),
+        self.buttons.append(Button(x + 320, y, 150, 40, self.font, "🏋️ Weights",
+                                   callback=lambda: self.set_tab("weights"),
                                    highlight=(self.store_tab == "weights")))
         y += 50
 
