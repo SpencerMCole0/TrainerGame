@@ -28,6 +28,7 @@ class GameGUI:
         self.font = pygame.font.SysFont("arial", 24)
         self.message = ""
         self.in_store = False
+        self.active_tab = "recovery"
         self.store = Store()
 
         self.buttons = [
@@ -37,11 +38,12 @@ class GameGUI:
             Button("+ Weight", 300, 510, 150, 40, self.increase_barbell, self.font),
         ]
 
-        self.store_buttons = [
-            Button("Buy Weight ($100)", 100, 450, 200, 50, self.buy_weight, self.font),
-            Button("Buy Steroids ($250)", 350, 450, 220, 50, self.buy_steroids, self.font),
-            Button("Back to Gym", 600, 450, 150, 50, self.toggle_store, self.font)
+        self.tab_buttons = [
+            Button("🧃 Recovery", 50, 10, 150, 40, lambda: self.set_tab("recovery"), self.font),
+            Button("🏋️ Training", 220, 10, 150, 40, lambda: self.set_tab("training"), self.font),
         ]
+
+        self.page_buttons = []  # dynamically built per frame
 
     def draw(self):
         self.screen.fill((30, 30, 30))
@@ -77,49 +79,55 @@ class GameGUI:
     def draw_store(self):
         screen_width = self.screen.get_width()
         content_x = 50
-        content_y = 30
+        content_y = 60
+
+        # Draw tabs
+        for tab in self.tab_buttons:
+            if (tab.text == "🧃 Recovery" and self.active_tab == "recovery") or \
+               (tab.text == "🏋️ Training" and self.active_tab == "training"):
+                tab.color = (180, 255, 180)
+            else:
+                tab.color = (200, 200, 200)
+            tab.draw(self.screen)
 
         title = self.font.render("🏪 Store", True, (255, 255, 0))
         self.screen.blit(title, (content_x, content_y))
 
         y = content_y + 50
 
-        # Grouped store items
         recovery_keys, training_keys = self.store.get_grouped_items()
+        keys_to_render = recovery_keys if self.active_tab == "recovery" else training_keys
 
-        if recovery_keys:
-            self.screen.blit(self.font.render("🧃 Recovery", True, (0, 255, 255)), (content_x, y))
-            y += 40
-            for key in recovery_keys:
-                item = self.store.items[key]
-                self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
-                self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (content_x, y + 30))
-                y += 70
+        for key in keys_to_render:
+            item = self.store.items[key]
+            self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
+            self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (content_x, y + 30))
+            y += 70
 
-        if training_keys:
-            self.screen.blit(self.font.render("🏋️ Training", True, (255, 200, 100)), (content_x, y))
-            y += 40
-            for key in training_keys:
-                item = self.store.items[key]
-                self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
-                self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (content_x, y + 30))
-                y += 70
-
-        # Display bucks and message
         self.screen.blit(self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)), (content_x, y))
         y += 40
         self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (content_x, y))
 
+        # Dynamically build bottom buttons based on tab
         y += 80
+        self.page_buttons = []
+
+        if self.active_tab == "recovery":
+            self.page_buttons.append(Button("Buy Steroids ($250)", 0, 0, 220, 50, self.buy_steroids, self.font))
+
+        elif self.active_tab == "training":
+            self.page_buttons.append(Button("Buy Weight ($100)", 0, 0, 200, 50, self.buy_weight, self.font))
+
+        self.page_buttons.append(Button("Back to Gym", 0, 0, 150, 50, self.toggle_store, self.font))
+
         button_spacing = 20
-        total_button_width = sum([btn.rect.width for btn in self.store_buttons]) + button_spacing * (len(self.store_buttons) - 1)
+        total_button_width = sum([btn.rect.width for btn in self.page_buttons]) + button_spacing * (len(self.page_buttons) - 1)
         start_x = (screen_width - total_button_width) // 2
 
-        for i, btn in enumerate(self.store_buttons):
+        for i, btn in enumerate(self.page_buttons):
             btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
             btn.rect.y = y
             btn.draw(self.screen)
-
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
@@ -136,13 +144,18 @@ class GameGUI:
             pygame.draw.rect(self.screen, (0, 200, 0), (x, y, int(full_width * fill_ratio), height))
 
     def handle_event(self, event):
-        active_buttons = self.store_buttons if self.in_store else self.buttons
+        active_buttons = self.tab_buttons if self.in_store else self.buttons
+        active_buttons += self.page_buttons if self.in_store else []
+
         for btn in active_buttons:
             btn.handle_event(event)
 
     def toggle_store(self):
         self.in_store = not self.in_store
         self.message = ""
+
+    def set_tab(self, tab_name):
+        self.active_tab = tab_name
 
     def do_rep(self):
         self.message = self.game_state.perform_rep()
