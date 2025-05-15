@@ -34,10 +34,18 @@ class Store:
         }
 
         self.sponsorship_items = {
-            "accessory": StoreItem("Accessory Work", 150, "Earn +1 buck per rep", lambda p: p.add_income_boost(1)),
-            "competition": StoreItem("Competition", 300, "Earn +2 bucks per rep", lambda p: p.add_income_boost(2)),
-            "sponsor": StoreItem("Sponsorship Deal", 500, "Earn +5 bucks per rep", lambda p: p.add_income_boost(5))
+            "placeholder1": StoreItem("Placeholder #1", 50, "Earn +$5 bucks per rep", lambda p: p.add_income_boost(5)),
+            "placeholder2": StoreItem("Placeholder #2", 100, "Earn +$10 bucks per rep", lambda p: p.add_income_boost(10)),
+            "placeholder3": StoreItem("Placeholder #3", 150, "Earn +$15 bucks per rep", lambda p: p.add_income_boost(15)),
+            "placeholder4": StoreItem("Placeholder #4", 200, "Earn +$20 bucks per rep", lambda p: p.add_income_boost(20)),
+            "placeholder5": StoreItem("Placeholder #5", 250, "Earn +$25 bucks per rep", lambda p: p.add_income_boost(25)),
+            "placeholder6": StoreItem("Placeholder #6", 300, "Earn +$30 bucks per rep", lambda p: p.add_income_boost(30)),
+            "placeholder7": StoreItem("Placeholder #7", 350, "Earn +$35 bucks per rep", lambda p: p.add_income_boost(35)),
+            "placeholder8": StoreItem("Placeholder #8", 400, "Earn +$40 bucks per rep", lambda p: p.add_income_boost(40)),
+            "placeholder9": StoreItem("Placeholder #9", 450, "Earn +$45 bucks per rep", lambda p: p.add_income_boost(45)),
+            "placeholder10": StoreItem("Placeholder #10", 500, "Earn +$50 bucks per rep", lambda p: p.add_income_boost(50)),
         }
+
 
         self.weight_items = {
             "weight": StoreItem("Add Weight", 100, "Add +5 lbs to barbell (slower reps)", lambda p: p.add_weight())
