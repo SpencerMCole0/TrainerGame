@@ -26,12 +26,18 @@ class StoreItem:
 class Store:
     def __init__(self):
         self.recovery_items = {
-            "protein": StoreItem("Protein Shake", 50, "-0.25s rest time (Max 5)", lambda p: p.reduce_rest_time(0.25), limit=5),
-            "icebath": StoreItem("Ice Bath", 100, "-0.5s rest time (Max 3)", lambda p: p.reduce_rest_time(0.5), limit=3),
-            "massage": StoreItem("Massage", 200, "-1.0s rest time", lambda p: p.reduce_rest_time(1.0)),
-            "sauna": StoreItem("Sauna", 400, "-1.5s rest time", lambda p: p.reduce_rest_time(1.5)),
-            "steroids": StoreItem("Use Steroids", 250, "Reduce rest time by 1s (min 1s)", lambda p: p.use_steroids())
+            "recovery1": StoreItem("Recovery #1", 50, "-0.2s rest time", lambda p: p.reduce_rest_time(0.2)),
+            "recovery2": StoreItem("Recovery #2", 100, "-0.4s rest time", lambda p: p.reduce_rest_time(0.4)),
+            "recovery3": StoreItem("Recovery #3", 150, "-0.6s rest time", lambda p: p.reduce_rest_time(0.6)),
+            "recovery4": StoreItem("Recovery #4", 200, "-0.8s rest time", lambda p: p.reduce_rest_time(0.8)),
+            "recovery5": StoreItem("Recovery #5", 250, "-1.0s rest time", lambda p: p.reduce_rest_time(1.0)),
+            "recovery6": StoreItem("Recovery #6", 300, "-1.2s rest time", lambda p: p.reduce_rest_time(1.2)),
+            "recovery7": StoreItem("Recovery #7", 350, "-1.4s rest time", lambda p: p.reduce_rest_time(1.4)),
+            "recovery8": StoreItem("Recovery #8", 400, "-1.6s rest time", lambda p: p.reduce_rest_time(1.6)),
+            "recovery9": StoreItem("Recovery #9", 450, "-1.8s rest time", lambda p: p.reduce_rest_time(1.8)),
+            "recovery10": StoreItem("Recovery #10", 500, "-2.0s rest time", lambda p: p.reduce_rest_time(2.0)),
         }
+
 
         self.sponsorship_items = {
             "placeholder1": StoreItem("Placeholder #1", 50, "Earn +$5 bucks per rep", lambda p: p.add_income_boost(5)),
