@@ -8,6 +8,7 @@ class Player:
         self.base_rest_time = 5.0
         self.min_rest_time = 1.0
         self.extra_bucks_per_rep = 0
+        self.recovery_bonus = 0.0
         self.upgrades = []
 
     def reduce_rest_time(self, amount):
