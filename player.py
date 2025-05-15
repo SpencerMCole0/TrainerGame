@@ -11,6 +11,10 @@ class Player:
         self.rest_reduction = 0.0
         self.recovery_items_purchased = {}
 
+    def add_weight(self, amount=5):
+        self.total_weight += amount
+        self.barbell_weight += amount
+
     def get_current_rest_time(self):
         base_time = 5.0 * (self.barbell_weight / self.base_weight)
         return max(self.min_rest_time, base_time - self.rest_reduction)
