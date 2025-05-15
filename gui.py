@@ -3,7 +3,6 @@ import time
 from store import Store
 from utils import Button
 
-
 class GameGUI:
     def __init__(self, screen, player, game_state):
         self.screen = screen
@@ -43,31 +42,16 @@ class GameGUI:
 
         self.buttons = []
 
-        # Do Rep button with fill cooldown
-        btn_rect = pygame.Rect(100, y + 20, 200, 50)
         cooldown = self.player.get_current_rest_time()
         elapsed = time.time() - self.game_state.last_rep_time
         fill_ratio = min(elapsed / cooldown, 1.0)
-        fill_width = int(btn_rect.width * fill_ratio)
+        btn_rect = pygame.Rect(100, y + 20, 200, 50)
 
-        # background + cooldown fill
-        pygame.draw.rect(self.screen, (100, 100, 100), btn_rect)
-        if fill_ratio < 1.0:
-            pygame.draw.rect(self.screen, (0, 200, 0), (btn_rect.x, btn_rect.y, fill_width, btn_rect.height))
-        else:
-            pygame.draw.rect(self.screen, (0, 255, 0), btn_rect)
+        rep_btn = Button(btn_rect.x, btn_rect.y, btn_rect.width, btn_rect.height, self.font, "Do Rep", self.do_rep)
+        rep_btn.update_cooldown(fill_ratio)
+        self.buttons.append(rep_btn)
 
-        pygame.draw.rect(self.screen, (255, 255, 255), btn_rect, 2)
-        label = self.font.render("Do Rep", True, (0, 0, 0))
-        self.screen.blit(label, label.get_rect(center=btn_rect.center))
-
-        if fill_ratio >= 1.0:
-            self.buttons.append(Button(btn_rect.x, btn_rect.y, btn_rect.width, btn_rect.height, self.font, "Do Rep", self.do_rep))
-
-        # Open Store button
         self.buttons.append(Button(320, y + 20, 150, 50, self.font, "Open Store", self.go_to_store))
-
-        # Weight buttons
         self.buttons.append(Button(100, y + 90, 100, 40, self.font, "- Weight", self.remove_weight,
                                    disabled=self.player.barbell_weight <= 45))
         self.buttons.append(Button(220, y + 90, 100, 40, self.font, "+ Weight", self.add_weight,
