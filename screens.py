@@ -99,7 +99,7 @@ class SettingsScreen:
         gap = 60
         self.buttons = [
             Button(mid_x - 130, start_y, 260, 50, self.font, f"Toggle Cheats: {'OFF'}", self.toggle_cheats),
-            Button(mid_x - 130, start_y + gap, 260, 50, self.font, f"Start With $1000: {'OFF'}", self.toggle_start_with_money),
+            Button(mid_x - 130, start_y + gap, 260, 50, self.font, f"Start With $100000: {'OFF'}", self.toggle_start_with_money),
             Button(mid_x - 130, start_y + 2*gap, 260, 50, self.font, "Back to Menu", self.goto_home),
         ]
 
