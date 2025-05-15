@@ -30,7 +30,8 @@ class GameGUI:
             f"Total Owned Weight: {self.player.total_weight} lbs",
             f"Barbell Weight: {self.player.barbell_weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.base_rest_time, 1)}s",
+            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
+            f"Bonus: +${self.player.extra_bucks_per_rep} per rep",
             f"Message: {self.message}"
         ]
         for label in labels:
@@ -57,22 +58,14 @@ class GameGUI:
         self.buttons = []
         self.buttons.append(Button(x, y, "🟩 Recovery", lambda: self.set_tab("recovery"),
                                    highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 130, y, "☑ Training", lambda: self.set_tab("training"),
+        self.buttons.append(Button(x + 130, y, "☑ Sponsorships", lambda: self.set_tab("training"),
                                    highlight=(self.store_tab == "training")))
+        self.buttons.append(Button(x + 270, y, "🪨 Weights", lambda: self.set_tab("weights"),
+                                   highlight=(self.store_tab == "weights")))
         y += 50
 
         # Filter items by tab
-        items = [item for item in store_items if item["category"] == self.store_tab]
-
-        # Draw item descriptions
-        for item in items:
-            lines = item["description"].split("\n")
-            self.screen.blit(self.font.render(f"{item['name']} - ${item['cost']}", True, (255, 255, 255)), (x, y))
-            y += 22
-            for line in lines:
-                self.screen.blit(self.font.render(line, True, (180, 180, 180)), (x + 10, y))
-                y += 20
-            y += 5
+        items = [item for item in Store.items if item["category"] == self.store_tab]
 
         # Your bucks
         self.screen.blit(self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)), (x, y))
@@ -83,7 +76,7 @@ class GameGUI:
             self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (x, y))
             y += 30
 
-        # Calculate layout
+        # Layout buttons
         padding = 15
         screen_width = self.screen.get_width()
         current_x = padding
@@ -92,17 +85,21 @@ class GameGUI:
         row_height = max_button_height + 10
 
         for item in items:
-            text = f"Buy {item['name']} (${item['cost']})"
-            text_width = self.font.size(text)[0] + 20
-            disabled = not item["available"](self.player)
-            if current_x + text_width > screen_width - padding:
+            label = item["label"](self.player)
+            text = f"Buy ({item['count'](self.player)}/{item['max']})"
+            width = max(self.font.size(text)[0], self.font.size(label)[0]) + 20
+            if current_x + width > screen_width - padding:
                 current_x = padding
-                current_y += row_height
-            self.buttons.append(Button(current_x, current_y, text, lambda i=item: self.purchase(i), disabled=disabled))
-            current_x += text_width + 10
+                current_y += row_height * 2
 
-        # Back button (its own row, red)
-        back_y = current_y + row_height
+            self.screen.blit(self.font.render(label, True, (255, 255, 255)), (current_x, current_y))
+            self.buttons.append(Button(current_x, current_y + 20, text,
+                                       lambda i=item: self.purchase(i),
+                                       disabled=not item["available"](self.player)))
+            current_x += width + 10
+
+        # Back button
+        back_y = current_y + row_height * 2
         self.buttons.append(Button(screen_width // 2 - 60, back_y, "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:
