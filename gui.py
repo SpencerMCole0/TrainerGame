@@ -98,7 +98,6 @@ class GameGUI:
         recovery_keys, training_keys = self.store.get_grouped_items()
         keys_to_render = recovery_keys if self.active_tab == "recovery" else training_keys
 
-        # Draw items
         for key in keys_to_render:
             item = self.store.items[key]
             self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
@@ -109,21 +108,24 @@ class GameGUI:
         y += 40
         self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (content_x, y))
 
-        # Build buttons dynamically for every item in active tab
         y += 80
         self.page_buttons = []
 
         for key in keys_to_render:
             item = self.store.items[key]
-            btn = Button(f"Buy {item.name} (${item.cost})", 0, 0, 240, 50, lambda k=key: self.buy_item(k), self.font)
+
+            def make_callback(k):
+                return lambda: self.buy_item(k)
+
+            btn = Button(f"Buy {item.name} (${item.cost})", 0, 0, 240, 50, make_callback(key), self.font)
             self.page_buttons.append(btn)
 
-        # Always include back button
-        self.page_buttons.append(Button("Back to Gym", 0, 0, 150, 50, self.toggle_store, self.font))
+        # Always add the back button
+        back_btn = Button("Back to Gym", 0, 0, 150, 50, self.toggle_store, self.font)
+        self.page_buttons.append(back_btn)
 
-        # Center and draw buttons
         button_spacing = 20
-        total_button_width = sum([btn.rect.width for btn in self.page_buttons]) + button_spacing * (len(self.page_buttons) - 1)
+        total_button_width = sum(btn.rect.width for btn in self.page_buttons) + button_spacing * (len(self.page_buttons) - 1)
         start_x = (screen_width - total_button_width) // 2
 
         for i, btn in enumerate(self.page_buttons):
@@ -146,11 +148,12 @@ class GameGUI:
             pygame.draw.rect(self.screen, (0, 200, 0), (x, y, int(full_width * fill_ratio), height))
 
     def handle_event(self, event):
-        active_buttons = self.tab_buttons if self.in_store else self.buttons
-        active_buttons += self.page_buttons if self.in_store else []
-
-        for btn in active_buttons:
-            btn.handle_event(event)
+        if self.in_store:
+            for btn in self.tab_buttons + self.page_buttons:
+                btn.handle_event(event)
+        else:
+            for btn in self.buttons:
+                btn.handle_event(event)
 
     def toggle_store(self):
         self.in_store = not self.in_store
