@@ -83,23 +83,34 @@ class GameGUI:
         self.screen.blit(title, (content_x, content_y))
 
         y = content_y + 50
-        for key, item in self.store.get_items().items():
-            name_line = f"{item.name} - ${item.cost}"
-            desc_line = item.description
-            self.screen.blit(self.font.render(name_line, True, (255, 255, 255)), (content_x, y))
-            self.screen.blit(self.font.render(desc_line, True, (180, 180, 180)), (content_x, y + 30))
-            y += 70
 
-        bucks_display = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
-        self.screen.blit(bucks_display, (content_x, y))
+        # Grouped store items
+        recovery_keys, training_keys = self.store.get_grouped_items()
 
+        if recovery_keys:
+            self.screen.blit(self.font.render("🧃 Recovery", True, (0, 255, 255)), (content_x, y))
+            y += 40
+            for key in recovery_keys:
+                item = self.store.items[key]
+                self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
+                self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (content_x, y + 30))
+                y += 70
+
+        if training_keys:
+            self.screen.blit(self.font.render("🏋️ Training", True, (255, 200, 100)), (content_x, y))
+            y += 40
+            for key in training_keys:
+                item = self.store.items[key]
+                self.screen.blit(self.font.render(f"{item.name} - ${item.cost}", True, (255, 255, 255)), (content_x, y))
+                self.screen.blit(self.font.render(item.description, True, (180, 180, 180)), (content_x, y + 30))
+                y += 70
+
+        # Display bucks and message
+        self.screen.blit(self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)), (content_x, y))
         y += 40
-        message = self.font.render(self.message, True, (255, 255, 255))
-        self.screen.blit(message, (content_x, y))
+        self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (content_x, y))
 
-        y += 80  # space before buttons
-
-        # Center the buttons horizontally
+        y += 80
         button_spacing = 20
         total_button_width = sum([btn.rect.width for btn in self.store_buttons]) + button_spacing * (len(self.store_buttons) - 1)
         start_x = (screen_width - total_button_width) // 2
@@ -108,6 +119,7 @@ class GameGUI:
             btn.rect.x = start_x + i * (btn.rect.width + button_spacing)
             btn.rect.y = y
             btn.draw(self.screen)
+
 
     def draw_cooldown_bar(self):
         if not self.game_state.can_rep():
