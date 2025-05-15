@@ -38,13 +38,12 @@ class GameGUI:
             self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
             y += line_height
 
-        self.buttons = []
-        self.buttons.append(Button(50, y + 40, "Do Rep", self.do_rep))
-        self.buttons.append(Button(170, y + 40, "Open Store", self.go_to_store))
-        self.buttons.append(Button(50, y + 80, "- Weight", self.remove_weight,
-                                   disabled=(self.player.barbell_weight <= 45)))
-        self.buttons.append(Button(170, y + 80, "+ Weight", self.add_weight,
-                                   disabled=(self.player.barbell_weight >= self.player.total_weight)))
+        self.buttons = [
+            Button(50, y + 40, "Do Rep", self.do_rep),
+            Button(170, y + 40, "Open Store", self.go_to_store),
+            Button(50, y + 80, "- Weight", self.remove_weight, disabled=(self.player.barbell_weight <= 45)),
+            Button(170, y + 80, "+ Weight", self.add_weight, disabled=(self.player.barbell_weight >= self.player.total_weight))
+        ]
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -55,12 +54,9 @@ class GameGUI:
         y += 40
 
         self.buttons = []
-        self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"),
-                                highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 150, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"),
-                                highlight=(self.store_tab == "sponsorship")))
-        self.buttons.append(Button(x + 320, y, "🏋️ Weights", lambda: self.set_tab("weights"),
-                                highlight=(self.store_tab == "weights")))
+        self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")))
+        self.buttons.append(Button(x + 150, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")))
+        self.buttons.append(Button(x + 320, y, "🏋️ Weights", lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")))
         y += 50
 
         grouped = self.store.get_grouped_items()
@@ -86,31 +82,27 @@ class GameGUI:
         current_x = 40
         current_y = y + 20
         row_height = 105
-        col_width = 200
+        col_width = 180
         padding = 20
         items_per_row = max(1, (screen_width - padding * 2) // col_width)
 
         for i, item in enumerate(items):
-            label = "MAXED" if item.times_bought >= item.limit else f"Buy ({item.times_bought}/{item.limit})"
-            effect = item.description
             can_afford = item.can_buy(self.player)[0]
-            disabled = not can_afford
+            maxed = item.limit is not None and item.times_bought >= item.limit
+            label = "MAXED" if maxed else f"Buy ({item.times_bought}/{item.limit})" if item.limit else f"Buy (${item.cost})"
+            effect = item.description
+            disabled = not can_afford or maxed
 
             col = i % items_per_row
             row = i // items_per_row
-
             item_x = padding + col * col_width
             item_y = current_y + row * row_height
 
             self.screen.blit(self.font.render(effect, True, (200, 200, 200)), (item_x, item_y - 20))
 
-            self.buttons.append(Button(item_x, item_y, label,
-                                    lambda i=item: self.purchase(i),
-                                    disabled=disabled))
+            self.buttons.append(Button(item_x, item_y, label, lambda i=item: self.purchase(i), disabled=disabled))
 
-        # Back to gym button centered on its own row
-        self.buttons.append(Button(screen_width // 2 - 60, item_y + row_height + 20,
-                                "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
+        self.buttons.append(Button(screen_width // 2 - 60, item_y + row_height + 20, "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:
             btn.draw(self.screen)
