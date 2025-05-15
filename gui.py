@@ -4,6 +4,10 @@ from store import Store
 from utils import Button
 
 class GameGUI:
+    def open_save_slots(self):
+        if self.game:
+            self.game.current_screen = self.game.save_slots_screen
+
     def __init__(self, screen, player, game_state):
         self.screen = screen
         self.player = player
