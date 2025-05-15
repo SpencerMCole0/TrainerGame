@@ -63,8 +63,8 @@ class GameGUI:
                                    disabled=self.player.barbell_weight >= self.player.total_weight))
 
         # Changed Save Game button to open Save Slots screen
-        self.buttons.append(Button(50, y + 140, 100, 40, self.font, "Save Game", self.open_save_slots))
-        self.buttons.append(Button(160, y + 140, 150, 40, self.font, "Exit to Menu", self.exit_to_menu))
+        self.buttons.append(Button(50, y + 140, 120, 40, self.font, "Save & Exit", self.save_and_exit))
+        self.buttons.append(Button(180, y + 140, 130, 40, self.font, "Exit to Menu", self.exit_to_menu))
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -190,3 +190,9 @@ class GameGUI:
     def handle_event(self, event):
         for btn in self.buttons:
             btn.handle_event(event)
+
+    def save_and_exit(self):
+        self.player.save()
+        if self.game:
+            self.game.current_screen = self.game.home_screen
+        self.message = "Game saved and exited!"
