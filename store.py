@@ -22,8 +22,10 @@ class StoreItem:
         self.times_bought += 1
         return self.action(player)
 
+
 class Store:
     def __init__(self):
+        # 🧃 Recovery Items
         recovery_items = {
             "protein": StoreItem(
                 name="Protein Shake",
@@ -50,21 +52,22 @@ class Store:
                 cost=400,
                 description="-1.5s rest time",
                 action=lambda p: p.reduce_rest_time(1.5)
-            )
-        }
-
-        training_items = {
-            "weight": StoreItem(
-                name="Add Weight",
-                cost=100,
-                description="Add +5 lbs to barbell (slower reps)",
-                action=lambda p: p.add_weight()
             ),
             "steroids": StoreItem(
                 name="Use Steroids",
                 cost=250,
                 description="Reduce rest time by 1s (min 1s)",
                 action=lambda p: p.use_steroids()
+            )
+        }
+
+        # 🏋️ Training Items
+        training_items = {
+            "weight": StoreItem(
+                name="Add Weight",
+                cost=100,
+                description="Add +5 lbs to barbell (slower reps)",
+                action=lambda p: p.add_weight()
             ),
             "accessory": StoreItem(
                 name="Accessory Work",
