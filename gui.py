@@ -64,21 +64,21 @@ class GameGUI:
         for btn in self.buttons:
             btn.draw(self.screen)
 
-    def draw_store(self):
+   def draw_store(self):
         x, y = 30, 30
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (x, y))
         y += 40
 
         self.buttons = []
         self.buttons.append(Button(x, y, 150, 40, self.font, "🧃 Recovery",
-                                   callback=lambda: self.set_tab("recovery"),
-                                   highlight=(self.store_tab == "recovery")))
+                                callback=lambda: self.set_tab("recovery"),
+                                highlight=(self.store_tab == "recovery")))
         self.buttons.append(Button(x + 160, y, 150, 40, self.font, "📢 Sponsorships",
-                                   callback=lambda: self.set_tab("sponsorship"),
-                                   highlight=(self.store_tab == "sponsorship")))
+                                callback=lambda: self.set_tab("sponsorship"),
+                                highlight=(self.store_tab == "sponsorship")))
         self.buttons.append(Button(x + 320, y, 150, 40, self.font, "🏋️ Weights",
-                                   callback=lambda: self.set_tab("weights"),
-                                   highlight=(self.store_tab == "weights")))
+                                callback=lambda: self.set_tab("weights"),
+                                highlight=(self.store_tab == "weights")))
         y += 50
 
         all_items = self.store.get_items()
@@ -102,6 +102,7 @@ class GameGUI:
         col_width = 180
         padding = 30
         screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
         items_per_row = max(1, (screen_width - 2 * padding) // col_width)
         current_y = y + 10
 
@@ -118,8 +119,23 @@ class GameGUI:
             self.screen.blit(self.font.render(item.description, True, (255, 255, 255)), (item_x, item_y - 20))
             self.buttons.append(Button(item_x, item_y, 160, 40, self.font, label, lambda i=item: self.purchase(i), disabled=disabled))
 
-        self.buttons.append(Button(screen_width // 2 - 80, current_y + row_height + 20, 160, 40, self.font,
-                                   "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
+        # Position Back to Gym button bottom-right corner
+        btn_width = 160
+        btn_height = 40
+        padding = 20
+        back_x = screen_width - btn_width - padding
+        back_y = screen_height - btn_height - padding
+
+        self.buttons.append(Button(
+            back_x,
+            back_y,
+            btn_width,
+            btn_height,
+            self.font,
+            "Back to Gym",
+            self.go_to_gym,
+            color=(255, 100, 100)
+        ))
 
         for btn in self.buttons:
             btn.draw(self.screen)
