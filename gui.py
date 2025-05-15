@@ -11,9 +11,8 @@ class GameGUI:
         self.large_font = pygame.font.SysFont(None, 32)
         self.message = ""
         self.mode = "gym"
-        self.store_tab = "recovery"
+        self.store_tab = "recovery"  # or 'training'
         self.buttons = []
-        self.store = Store()
 
     def draw(self):
         self.screen.fill((30, 30, 30))
@@ -31,19 +30,20 @@ class GameGUI:
             f"Total Owned Weight: {self.player.total_weight} lbs",
             f"Barbell Weight: {self.player.barbell_weight} lbs",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
+            f"Cooldown: {round(self.player.base_rest_time, 1)}s",
             f"Message: {self.message}"
         ]
         for label in labels:
             self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
             y += line_height
 
-        self.buttons = [
-            Button(50, y + 40, "Do Rep", self.do_rep),
-            Button(170, y + 40, "Open Store", self.go_to_store),
-            Button(50, y + 80, "- Weight", self.remove_weight, disabled=(self.player.barbell_weight <= 45)),
-            Button(170, y + 80, "+ Weight", self.add_weight, disabled=(self.player.barbell_weight >= self.player.total_weight))
-        ]
+        self.buttons = []
+        self.buttons.append(Button(50, y + 40, "Do Rep", self.do_rep))
+        self.buttons.append(Button(170, y + 40, "Open Store", self.go_to_store))
+        self.buttons.append(Button(50, y + 80, "- Weight", self.remove_weight,
+                                   disabled=(self.player.barbell_weight <= 45)))
+        self.buttons.append(Button(170, y + 80, "+ Weight", self.add_weight,
+                                   disabled=(self.player.barbell_weight >= self.player.total_weight)))
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -53,56 +53,57 @@ class GameGUI:
         self.screen.blit(self.large_font.render("🟨 Store", True, (255, 255, 0)), (x, y))
         y += 40
 
+        # Tabs
         self.buttons = []
-        self.buttons.append(Button(x, y, "🧃 Recovery", lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 150, y, "📢 Sponsorships", lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")))
-        self.buttons.append(Button(x + 320, y, "🏋️ Weights", lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")))
+        self.buttons.append(Button(x, y, "🟩 Recovery", lambda: self.set_tab("recovery"),
+                                   highlight=(self.store_tab == "recovery")))
+        self.buttons.append(Button(x + 130, y, "☑ Training", lambda: self.set_tab("training"),
+                                   highlight=(self.store_tab == "training")))
         y += 50
 
-        grouped = self.store.get_grouped_items()
-        all_items = self.store.get_items()
+        # Filter items by tab
+        items = [item for item in store_items if item["category"] == self.store_tab]
 
-        if self.store_tab == "recovery":
-            keys = grouped[0]
-        elif self.store_tab == "sponsorship":
-            keys = grouped[1]
-        else:
-            keys = grouped[2]
+        # Draw item descriptions
+        for item in items:
+            lines = item["description"].split("\n")
+            self.screen.blit(self.font.render(f"{item['name']} - ${item['cost']}", True, (255, 255, 255)), (x, y))
+            y += 22
+            for line in lines:
+                self.screen.blit(self.font.render(line, True, (180, 180, 180)), (x + 10, y))
+                y += 20
+            y += 5
 
-        items = [all_items[key] for key in keys]
-
+        # Your bucks
         self.screen.blit(self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)), (x, y))
-        y += 30
+        y += 25
 
+        # Message
         if self.message:
             self.screen.blit(self.font.render(self.message, True, (255, 255, 255)), (x, y))
             y += 30
 
+        # Calculate layout
+        padding = 15
         screen_width = self.screen.get_width()
-        current_x = 40
-        current_y = y + 20
-        row_height = 105
-        col_width = 180
-        padding = 20
-        items_per_row = max(1, (screen_width - padding * 2) // col_width)
+        current_x = padding
+        current_y = y + 30
+        max_button_height = 40
+        row_height = max_button_height + 10
 
-        for i, item in enumerate(items):
-            can_afford = item.can_buy(self.player)[0]
-            maxed = item.limit is not None and item.times_bought >= item.limit
-            label = "MAXED" if maxed else f"Buy ({item.times_bought}/{item.limit})" if item.limit else f"Buy (${item.cost})"
-            effect = item.description
-            disabled = not can_afford or maxed
+        for item in items:
+            text = f"Buy {item['name']} (${item['cost']})"
+            text_width = self.font.size(text)[0] + 20
+            disabled = not item["available"](self.player)
+            if current_x + text_width > screen_width - padding:
+                current_x = padding
+                current_y += row_height
+            self.buttons.append(Button(current_x, current_y, text, lambda i=item: self.purchase(i), disabled=disabled))
+            current_x += text_width + 10
 
-            col = i % items_per_row
-            row = i // items_per_row
-            item_x = padding + col * col_width
-            item_y = current_y + row * row_height
-
-            self.screen.blit(self.font.render(effect, True, (200, 200, 200)), (item_x, item_y - 20))
-
-            self.buttons.append(Button(item_x, item_y, label, lambda i=item: self.purchase(i), disabled=disabled))
-
-        self.buttons.append(Button(screen_width // 2 - 60, item_y + row_height + 20, "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
+        # Back button (its own row, red)
+        back_y = current_y + row_height
+        self.buttons.append(Button(screen_width // 2 - 60, back_y, "Back to Gym", self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -137,8 +138,8 @@ class GameGUI:
             self.message = "❌ Barbell can't go lower."
 
     def purchase(self, item):
-        return_msg = item.buy(self.player)
-        self.message = return_msg
+        success, msg = item["on_purchase"](self.player)
+        self.message = msg
 
     def handle_event(self, event):
         for btn in self.buttons:
