@@ -199,7 +199,7 @@ class GameGUI:
             self.game.current_screen = self.game.save_slots_screen
         self.message = ""
 
-    def draw_barbell(self):
+    def draw_barbell(self, x, y):
         # Base measurements
         screen_width = self.screen.get_width()
         screen_height = self.screen.get_height()
