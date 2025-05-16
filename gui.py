@@ -31,23 +31,18 @@ class GameGUI:
     def draw_gym(self):
         x, y = 30, 30
         line_height = 25
-
         labels = [
             f"Path: {self.player.path}",
             f"Reps: {self.player.reps}",
-            f"Total Owned Weight: {round(self.player.total_weight, 1)} kg",
-            f"Barbell Weight: {round(self.player.barbell_weight, 1)} kg",
-            f"Bucks: ${self.player.strength_bucks}",
+            f"Total Owned Weight: {self.player.total_weight} kg",
+            f"Barbell Weight: {self.player.barbell_weight} kg",
+            f"Bucks: ${self.player.bucks}",
             f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
-            f"🏆 Bonus per rep: ${self.player.bucks_per_rep}",
+            f"Sponsor Money per Rep: ${self.player.get_sponsorship_bonus()}",
             f"Message: {self.message}",
         ]
-
-        self.screen.fill((30, 30, 30))  # Clear once
-
         for label in labels:
-            text = self.font.render(label, True, (255, 255, 255))
-            self.screen.blit(text, (x, y))
+            self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
             y += line_height
 
         self.buttons = []

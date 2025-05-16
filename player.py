@@ -56,6 +56,32 @@ class Player:
         self.rest_reduction = 0.0
         self.bucks_per_rep = 0
         self.recovery_items_purchased = {}
+        self.purchased_sponsorship_items = {
+            "s1": 0,
+            "s2": 0,
+            "s3": 0,
+            "s4": 0,
+            "s5": 0,
+            "s6": 0,
+            "s7": 0,
+            "s8": 0,
+            "s9": 0,
+            "s10": 0,
+        }
+
+        # Sponsorship bonus dictionary (bucks per rep)
+        self.sponsorships = {
+            "s1": {"bonus": 5},
+            "s2": {"bonus": 10},
+            "s3": {"bonus": 15},
+            "s4": {"bonus": 20},
+            "s5": {"bonus": 25},
+            "s6": {"bonus": 30},
+            "s7": {"bonus": 35},
+            "s8": {"bonus": 40},
+            "s9": {"bonus": 45},
+            "s10": {"bonus": 50},
+        }
 
     def add_weight(self, amount=5):
         self.total_weight += amount
@@ -144,3 +170,12 @@ class Player:
         if weight in self.plates and self.plates[weight] > 0:
             self.plates[weight] -= 1
             self.calculate_total_weight()
+
+    def get_sponsorship_bonus(self):
+        # Sum bucks per rep bonus from all purchased sponsorship items
+        total_bonus = 0
+        for key, count in self.purchased_sponsorship_items.items():
+            if key in self.sponsorships:
+                bonus = self.sponsorships[key]['bonus']
+                total_bonus += bonus * count
+        return total_bonus
