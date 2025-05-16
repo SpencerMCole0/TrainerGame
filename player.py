@@ -26,22 +26,73 @@ class Player:
             20: 0,
             25: 0
         }
+        self.recovery_rest_time_values = {
+            "r1": 0.2,
+            "r2": 0.4,
+            "r3": 0.6,
+            "r4": 0.8,
+            "r5": 1.0,
+            "r6": 1.2,
+            "r7": 1.4,
+            "r8": 1.6,
+            "r9": 1.8,
+            "r10": 2.0,
+        }
+        self.purchased_recovery_items = {
+            "r1": 0,
+            "r2": 0,
+            "r3": 0,
+            "r4": 0,
+            "r5": 0,
+            "r6": 0,
+            "r7": 0,
+            "r8": 0,
+            "r9": 0,
+            "r10": 0,
+        }
         self.barbell_weight = self.base_bar_weight  # Start with just the bar
         self.extra_bucks_per_rep = 0
         self.min_rest_time = 1.0
         self.rest_reduction = 0.0
+        self.bucks_per_rep = 0
         self.recovery_items_purchased = {}
 
     def add_weight(self, amount=5):
         self.total_weight += amount
         self.barbell_weight += amount
 
+    def get_total_rest_time_reduction(self):
+        # Sum all recovery items' rest time reductions
+        # For example, you might store these in a dict or have a list of purchased items
+        # Here is a simple placeholder that sums all recovery rest time reductions:
+
+        total_reduction = 0.0
+        for item_id, quantity in self.purchased_recovery_items.items():
+            rest_time_reduction = self.get_recovery_item_rest_time(item_id)  # Define this method to get reduction per item_id
+            total_reduction += rest_time_reduction * quantity
+        return total_reduction
+
     def get_current_rest_time(self):
-        base_time = 5.0 * (self.barbell_weight / self.base_bar_weight)  # Base rest time based on barbell weight
-        return max(self.min_rest_time, base_time - self.rest_reduction)
+        # Convert barbell_weight from lbs to kg for calculation
+        barbell_kg = self.barbell_weight * 0.453592
+        base_kg = 60.0  # base kg weight for 5 seconds cooldown
+        base_time = 5.0 * (barbell_kg / base_kg)
+        reduced_time = base_time - self.get_total_rest_time_reduction()
+        min_time = 1.0
+        return max(reduced_time, min_time)
 
     def add_income_boost(self, amount):
         self.extra_bucks_per_rep += amount
+
+    def get_total_rest_time_reduction(self):
+            total_reduction = 0.0
+            for item_id, qty in self.purchased_recovery_items.items():
+                total_reduction += self.recovery_rest_time_values.get(item_id, 0) * qty
+            return total_reduction
+
+    def add_recovery_item(self, item_id):
+        if item_id in self.purchased_recovery_items:
+            self.purchased_recovery_items[item_id] += 1
 
     def reduce_rest_time(self, amount):
         self.rest_reduction += amount

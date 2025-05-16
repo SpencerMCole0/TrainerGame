@@ -30,46 +30,21 @@ class GameGUI:
 
     def draw_gym(self):
         x, y = 30, 30
-        stats = [
+        line_height = 25
+        labels = [
             f"Path: {self.player.path}",
             f"Reps: {self.player.reps}",
-            f"Total Owned Weight: {self.player.total_weight} lbs",
-            f"Barbell Weight: {self.player.barbell_weight} lbs",
+            f"Total Owned Weight: {round(self.player.total_weight * 0.453592, 1)} kg",  # convert lbs to kg
+            f"Barbell Weight: {round(self.player.barbell_weight * 0.453592, 1)} kg",    # convert lbs to kg
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
-            f"💰 Bonus per rep: ${self.player.extra_bucks_per_rep}",
+            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",  # make sure get_current_rest_time() is updated
+            f"🏆 Bonus per rep: ${self.player.bucks_per_rep}",
             f"Message: {self.message}"
         ]
-        for line in stats:
-            text = self.font.render(line, True, (255, 255, 255))
-            self.screen.blit(text, (x, y))
-            y += 28
 
-        self.buttons = []
-
-        self.draw_barbell(x + 50, y + 250)  # adjust position as needed
-        
-        cooldown = self.player.get_current_rest_time()
-        elapsed = time.time() - self.game_state.last_rep_time
-        fill_ratio = min(elapsed / cooldown, 1.0)
-        btn_rect = pygame.Rect(100, y + 20, 200, 50)
-
-        rep_btn = Button(btn_rect.x, btn_rect.y, btn_rect.width, btn_rect.height, self.font, "Do Rep", self.do_rep)
-        rep_btn.update_cooldown(fill_ratio)
-        self.buttons.append(rep_btn)
-
-        self.buttons.append(Button(320, y + 20, 150, 50, self.font, "Open Store", self.go_to_store))
-        self.buttons.append(Button(100, y + 90, 100, 40, self.font, "- Weight", self.remove_weight,
-                                   disabled=self.player.barbell_weight <= 45))
-        self.buttons.append(Button(220, y + 90, 100, 40, self.font, "+ Weight", self.add_weight,
-                                   disabled=self.player.barbell_weight >= self.player.total_weight))
-
-        # Changed Save Game button to open Save Slots screen
-        self.buttons.append(Button(50, y + 140, 120, 40, self.font, "Save & Exit", self.save_and_exit))
-        self.buttons.append(Button(180, y + 140, 130, 40, self.font, "Exit to Menu", self.exit_to_menu))
-
-        for btn in self.buttons:
-            btn.draw(self.screen)
+        for label in labels:
+            self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
+            y += line_height
             
     def draw_store(self):
         x, y = 30, 30
