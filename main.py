@@ -4,7 +4,6 @@ from player import Player
 from game_state import GameState
 from gui import GameGUI
 from utils import Button
-
 from screens import HomeScreen, CareerPathScreen, SettingsScreen, HowToPlayScreen
 from SaveSlotsScreen import SaveSlotsScreen
 from LoadSlotsScreen import LoadSlotsScreen
