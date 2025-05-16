@@ -195,7 +195,8 @@ class GameGUI:
         self.message = ""
 
     def open_store(self):
-        self.change_mode("store")
+        self.in_store = True
+        self.message = ""
 
     def draw_barbell(self, x, y):
         BAR_LENGTH = 300
@@ -241,3 +242,7 @@ class GameGUI:
                 color = PLATE_COLORS.get(weight, (100, 100, 100))
                 pygame.draw.rect(self.screen, color, (plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT))
                 plate_x += PLATE_WIDTH
+    
+    def change_mode(self, mode: str):
+        self.mode = mode
+        self.buttons.clear()
