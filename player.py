@@ -37,7 +37,7 @@ class Player:
         self.barbell_weight += amount
 
     def get_current_rest_time(self):
-        base_time = 5.0 * (self.barbell_weight / self.base_weight)
+        base_time = 5.0 * (self.barbell_weight / self.base_bar_weight)  # Base rest time based on barbell weight
         return max(self.min_rest_time, base_time - self.rest_reduction)
 
     def add_income_boost(self, amount):
