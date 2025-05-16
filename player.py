@@ -14,10 +14,20 @@ class Player:
         self.path = path
         self.reps = 0
         self.strength_bucks = 0
-        self.total_weight = 135
-        self.barbell_weight = 135
+        self.base_bar_weight = 20.0  # Olympic bar weight in kg
+        self.plates = {
+            0.5: 0,
+            1: 0,
+            2: 0,
+            2.5: 0,
+            5: 0,
+            10: 0,
+            15: 0,
+            20: 0,
+            25: 0
+        }
+        self.barbell_weight = self.base_bar_weight  # Start with just the bar
         self.extra_bucks_per_rep = 0
-        self.base_weight = 135
         self.min_rest_time = 1.0
         self.rest_reduction = 0.0
         self.recovery_items_purchased = {}
@@ -66,3 +76,20 @@ class Player:
             with open(filename, "r") as f:
                 data = json.load(f)
                 self.from_dict(data)
+
+    def calculate_total_weight(self):
+        plate_total = 0
+        for weight, count in self.plates.items():
+            plate_total += weight * count * 2  # plates on both sides
+        self.barbell_weight = self.base_bar_weight + plate_total
+        return self.barbell_weight
+
+    def add_plate(self, weight):
+        if weight in self.plates:
+            self.plates[weight] += 1
+            self.calculate_total_weight()
+    
+    def remove_plate(self, weight):
+        if weight in self.plates and self.plates[weight] > 0:
+            self.plates[weight] -= 1
+            self.calculate_total_weight()

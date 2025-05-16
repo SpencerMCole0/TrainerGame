@@ -1,31 +1,55 @@
-class Upgrade:
-    def __init__(self, name, cost, apply_func):
+class StoreItem:
+    def __init__(self, name, cost, description, action, limit=None):
         self.name = name
         self.cost = cost
-        self.apply = apply_func
+        self.description = description
+        self.action = action  # function to apply effect to player
+        self.limit = limit  # max purchase count
+        self.times_bought = 0
+
+    def can_buy(self, player):
+        if self.limit is not None and self.times_bought >= self.limit:
+            return (False, "Max limit reached")
+        if player.strength_bucks < self.cost:
+            return (False, "Not enough bucks")
+        return (True, "")
+
+    def buy(self, player):
+        can_buy, msg = self.can_buy(player)
+        if not can_buy:
+            return f"❌ {msg}"
+        player.strength_bucks -= self.cost
+        self.times_bought += 1
+        self.action(player)
+        return f"✅ Purchased {self.name}!"
+
+
+
+class Upgrade:
+    def __init__(self, name, cost, description):
+        self.name = name
+        self.cost = cost
+        self.description = description
+        self.is_purchased = False
+
+    def purchase(self, player):
+        if player.strength_bucks >= self.cost:
+            player.strength_bucks -= self.cost
+            self.is_purchased = True
+            return f"Purchased {self.name}!"
+        else:
+            return "Not enough strength bucks."
+
+
 
 class UpgradeStore:
     def __init__(self):
-        self.upgrades = {
-            "protein": Upgrade("Protein Shake", 50, lambda p: setattr(p, 'reps', p.reps + 1)),
-            "coach": Upgrade("Online Coach", 100, lambda p: setattr(p, 'weight', p.weight + 10)),
-            "steroids": Upgrade("Steroids 💉", 500, lambda p: setattr(p, 'reps', p.reps + 5)),
-        }
+        self.upgrades = []
 
-    def show_upgrades(self):
-        print("\n🛒 Upgrade Store:")
-        for key, up in self.upgrades.items():
-            print(f"{key.title()}: {up.name} - ${up.cost}")
-        print()
+    def add_upgrade(self, upgrade):
+        self.upgrades.append(upgrade)
 
-    def purchase(self, choice, player):
-        upgrade = self.upgrades.get(choice.lower())
-        if not upgrade:
-            print("❌ Upgrade not found.")
-            return
-        if player.strength_bucks >= upgrade.cost:
-            player.strength_bucks -= upgrade.cost
-            player.apply_upgrade(upgrade)
-            print(f"✅ Bought {upgrade.name}!")
-        else:
-            print("💸 Not enough Strength Bucks!")
+    def purchase_upgrade(self, index, player):
+        if 0 <= index < len(self.upgrades):
+            return self.upgrades[index].purchase(player)
+        return "Invalid upgrade index."
