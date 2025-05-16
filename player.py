@@ -54,6 +54,7 @@ class Player:
         self.extra_bucks_per_rep = 0
         self.min_rest_time = 1.0
         self.rest_reduction = 0.0
+        self.bucks = 0  # Initialize bucks to zero or whatever starting amount you want
         self.bucks_per_rep = 0
         self.recovery_items_purchased = {}
         self.purchased_sponsorship_items = {
