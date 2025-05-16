@@ -31,21 +31,41 @@ class GameGUI:
     def draw_gym(self):
         x, y = 30, 30
         line_height = 25
+
         labels = [
             f"Path: {self.player.path}",
             f"Reps: {self.player.reps}",
-            f"Total Owned Weight: {round(self.player.total_weight * 0.453592, 1)} kg",  # convert lbs to kg
-            f"Barbell Weight: {round(self.player.barbell_weight * 0.453592, 1)} kg",    # convert lbs to kg
+            f"Total Owned Weight: {round(self.player.total_weight, 1)} kg",
+            f"Barbell Weight: {round(self.player.barbell_weight, 1)} kg",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",  # make sure get_current_rest_time() is updated
+            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
             f"🏆 Bonus per rep: ${self.player.bucks_per_rep}",
-            f"Message: {self.message}"
+            f"Message: {self.message}",
         ]
 
+        self.screen.fill((30, 30, 30))  # Clear once
+
         for label in labels:
-            self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
+            text = self.font.render(label, True, (255, 255, 255))
+            self.screen.blit(text, (x, y))
             y += line_height
-            
+
+        self.buttons = []
+
+        btn_y = y + 20
+        # Temporarily force all buttons enabled
+        self.buttons.append(Button(50, btn_y, 100, 40, self.font, "Do Rep", self.do_rep, disabled=False))
+        self.buttons.append(Button(170, btn_y, 100, 40, self.font, "Open Store", self.open_store, disabled=False))
+        self.buttons.append(Button(50, btn_y + 50, 100, 40, self.font, "- Weight", self.remove_weight, disabled=False))
+        self.buttons.append(Button(170, btn_y + 50, 100, 40, self.font, "+ Weight", self.add_weight, disabled=False))
+        self.buttons.append(Button(50, btn_y + 100, 100, 40, self.font, "Save & Exit", self.save_and_exit, disabled=False))
+        self.buttons.append(Button(170, btn_y + 100, 100, 40, self.font, "Exit to Menu", self.exit_to_menu, disabled=False))
+
+        for btn in self.buttons:
+            btn.draw(self.screen)
+
+        self.draw_barbell(80, btn_y + 160)
+
     def draw_store(self):
         x, y = 30, 30
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (x, y))
@@ -173,6 +193,9 @@ class GameGUI:
         if self.game:
             self.game.current_screen = self.game.save_slots_screen
         self.message = ""
+
+    def open_store(self):
+        self.change_mode("store")
 
     def draw_barbell(self, x, y):
         BAR_LENGTH = 300
