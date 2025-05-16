@@ -199,30 +199,64 @@ class GameGUI:
             self.game.current_screen = self.game.save_slots_screen
         self.message = ""
 
-    def draw_barbell(self, x, y):
-        BAR_LENGTH = 300
-        BAR_HEIGHT = 20
-        PLATE_WIDTH = 20
-        PLATE_HEIGHT = 40
-        BASE_WEIGHT = 45
-        PLATE_WEIGHT = 5
+    def draw_barbell(self):
+        # Base measurements
+        screen_width = self.screen.get_width()
+        screen_height = self.screen.get_height()
+        bar_length = int(screen_width * 0.8)
+        bar_height = 20
+        bar_x = (screen_width - bar_length) // 2
+        bar_y = screen_height - 100
 
-        # Draw the bar (centered)
-        bar_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
-        pygame.draw.rect(self.screen, (80, 80, 80), bar_rect)  # gray bar
+        # Bar (metallic silver)
+        bar_color = (180, 180, 180)
+        pygame.draw.rect(self.screen, bar_color, (bar_x, bar_y, bar_length, bar_height))
 
-        # Calculate plates count per side
-        extra_weight = max(0, self.player.barbell_weight - BASE_WEIGHT)
-        plates_per_side = int(extra_weight // (2 * PLATE_WEIGHT))  # divide by 2 sides
+        # Barbell collars
+        collar_width = 40
+        collar_height = 60
+        collar_color = (120, 120, 120)  # Darker metallic gray
+        collar_x_left = bar_x - collar_width
+        collar_x_right = bar_x + bar_length
+        collar_y = bar_y - 20
+        pygame.draw.rect(self.screen, collar_color, (collar_x_left, collar_y, collar_width, collar_height))
+        pygame.draw.rect(self.screen, collar_color, (collar_x_right, collar_y, collar_width, collar_height))
 
-        # Draw plates on left side
-        for i in range(plates_per_side):
-            plate_x = x - PLATE_WIDTH * (i + 1)
-            plate_rect = pygame.Rect(plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT)
-            pygame.draw.rect(self.screen, (200, 0, 0), plate_rect)  # red plates
+        # Collar rings (decorative lines)
+        ring_color = (160, 160, 160)
+        ring_thickness = 3
+        ring_spacing = 10
+        for i in range(1, 4):
+            pygame.draw.line(self.screen, ring_color, (collar_x_left + i * ring_spacing, collar_y),
+                            (collar_x_left + i * ring_spacing, collar_y + collar_height), ring_thickness)
+            pygame.draw.line(self.screen, ring_color, (collar_x_right + i * ring_spacing, collar_y),
+                            (collar_x_right + i * ring_spacing, collar_y + collar_height), ring_thickness)
 
-        # Draw plates on right side
-        for i in range(plates_per_side):
-            plate_x = x + BAR_LENGTH + PLATE_WIDTH * i
-            plate_rect = pygame.Rect(plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT)
-            pygame.draw.rect(self.screen, (200, 0, 0), plate_rect)  # red plates
+        # Plates (red, sized proportional to weight)
+        max_weight = 500
+        weight = max(min(self.player.barbell_weight, max_weight), 0)  # Clamp weight
+        max_plate_width = 120
+        plate_height = 80
+        plate_color = (180, 20, 20)
+        # Calculate plate width proportional to weight
+        plate_width = int((weight / max_weight) * max_plate_width)
+
+        # Left and right plates
+        plate_x_left = collar_x_left - plate_width
+        plate_x_right = collar_x_right + collar_width
+        plate_y = bar_y - 30
+
+        pygame.draw.rect(self.screen, plate_color, (plate_x_left, plate_y, plate_width, plate_height))
+        pygame.draw.rect(self.screen, plate_color, (plate_x_right, plate_y, plate_width, plate_height))
+
+        # Plate detail rings
+        ring_color_light = (220, 60, 60)
+        ring_count = 3
+        ring_spacing = plate_width // (ring_count + 1)
+        for i in range(1, ring_count + 1):
+            pygame.draw.line(self.screen, ring_color_light,
+                            (plate_x_left + i * ring_spacing, plate_y),
+                            (plate_x_left + i * ring_spacing, plate_y + plate_height), 2)
+            pygame.draw.line(self.screen, ring_color_light,
+                            (plate_x_right + i * ring_spacing, plate_y),
+                            (plate_x_right + i * ring_spacing, plate_y + plate_height), 2)
