@@ -100,3 +100,13 @@ class Player:
         self.strength_bucks += total_earnings
         return total_earnings  # Return amount earned for display if needed
 
+    def add_income_boost(self, amount):
+        self.bucks_per_rep += amount
+    
+    def reduce_rest_time(self, amount):
+        self.rest_reduction += amount
+
+    def add_plate(self, weight):
+        if weight in self.plates:
+            self.plates[weight] += 1
+            self.calculate_total_weight()
