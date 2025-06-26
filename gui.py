@@ -60,92 +60,92 @@ class GameGUI:
             btn.draw(self.screen)
 
         self.draw_barbell(80, btn_y + 160)
-
+   
     def draw_store(self):
         padding = 30
+        extra_vspace = 100
         screen_w = self.screen.get_width()
-        x = padding
+        screen_h = self.screen.get_height()
 
-        # Title and Bucks
-        title_y = padding
+        # Title
+        title_x, title_y = padding, padding
         self.screen.blit(
             self.large_font.render("🏪 Store", True, (255, 255, 0)),
-            (x, title_y)
+            (title_x, title_y)
         )
-        bucks_surf = self.font.render(
-            f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)
-        )
+        # Bucks top-right
+        bucks_surf = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
         self.screen.blit(
             bucks_surf,
             (screen_w - padding - bucks_surf.get_width(), title_y)
         )
 
-        # Tabs (moved down)
-        tabs_y = title_y + self.large_font.get_height() + 20
+        # Tabs row, pushed down by another padding
+        tab_y = title_y + self.large_font.get_height() + padding + extra_vspace
         self.buttons = [
-            Button(x, tabs_y, 150, 40, self.font, "🧃 Recovery",
-                callback=lambda: self.set_tab("recovery"),
-                highlight=(self.store_tab == "recovery")),
-            Button(x + 160, tabs_y, 150, 40, self.font, "📢 Sponsorships",
-                callback=lambda: self.set_tab("sponsorship"),
-                highlight=(self.store_tab == "sponsorship")),
-            Button(x + 320, tabs_y, 150, 40, self.font, "🏋️ Weights",
-                callback=lambda: self.set_tab("weights"),
-                highlight=(self.store_tab == "weights")),
+            Button(padding, tab_y, 150, 40, self.font, "🧃 Recovery",
+                   callback=lambda: self.set_tab("recovery"),
+                   highlight=(self.store_tab == "recovery")),
+            Button(padding + 160, tab_y, 150, 40, self.font, "📢 Sponsorships",
+                   callback=lambda: self.set_tab("sponsorship"),
+                   highlight=(self.store_tab == "sponsorship")),
+            Button(padding + 320, tab_y, 150, 40, self.font, "🏋️ Weights",
+                   callback=lambda: self.set_tab("weights"),
+                   highlight=(self.store_tab == "weights")),
         ]
 
-        # Items grid starts well below tabs
-        items_start_y = tabs_y + 40 + 20
+        # Now leave a full "padding" below tabs before drawing items
+        items_start_y = tab_y + 40 + padding + extra_vspace
 
-        # Pick the right group
+        # Pick the right items
         all_items = self.store.get_items()
         rec, spon, wts = self.store.get_grouped_items()
         keys = {"recovery": rec, "sponsorship": spon, "weights": wts}[self.store_tab]
         items = [all_items[k] for k in keys]
 
-        # Layout
-        col_width = 200
+        # Grid layout
+        desired_cols = 4
+        col_width = (screen_w - 2 * padding) // desired_cols
         row_height = 120
-        per_row = max(1, (screen_w - 2 * padding) // col_width)
+        per_row = desired_cols
 
         for idx, item in enumerate(items):
             col = idx % per_row
             row = idx // per_row
-            item_x = padding + col * col_width
-            item_y = items_start_y + row * row_height
+            x = padding + col * col_width
+            y = items_start_y + row * row_height
 
-            # Cost in yellow, above attribute
-            cost_surf = self.font.render(f"Cost: ${item.cost}", True, (255, 255, 0))
-            self.screen.blit(cost_surf, (item_x, item_y - 50))
+            # Cost (yellow)
+            cost = self.font.render(f"Cost: ${item.cost}", True, (255, 255, 0))
+            self.screen.blit(cost, (x, y - 50))
 
-            # Attribute in white
-            desc_surf = self.font.render(item.description, True, (255, 255, 255))
-            self.screen.blit(desc_surf, (item_x, item_y - 30))
+            # Description (white)
+            desc = self.font.render(item.description, True, (255, 255, 255))
+            self.screen.blit(desc, (x, y - 30))
 
             # Buy button
             maxed = item.limit is not None and item.times_bought >= item.limit
             label = "MAXED" if maxed else f"Buy ({item.times_bought}/{item.limit})"
             disabled = maxed or not item.can_buy(self.player)[0]
-
             self.buttons.append(
-                Button(item_x, item_y, 160, 40, self.font, label,
-                    callback=lambda it=item: self.purchase(it),
-                    disabled=disabled)
+                Button(x, y, 160, 40, self.font, label,
+                       callback=lambda it=item: self.purchase(it),
+                       disabled=disabled)
             )
 
         # Back to Gym
         back_w, back_h = 160, 40
         bx = screen_w - back_w - padding
-        by = self.screen.get_height() - back_h - padding
+        by = screen_h - back_h - padding
         self.buttons.append(
             Button(bx, by, back_w, back_h, self.font, "Back to Gym",
-                self.go_to_gym, color=(255, 100, 100))
+                   self.go_to_gym, color=(255, 100, 100))
         )
 
-        # Draw all
+        # Finally, draw all the buttons
         for btn in self.buttons:
             btn.draw(self.screen)
-
+  
     def set_tab(self, tab):
         self.store_tab = tab
         self.message = ""
