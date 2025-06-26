@@ -1,3 +1,6 @@
+import json
+import os
+
 class Player:
     def __init__(self, path=None):
         self.path = path
@@ -37,7 +40,7 @@ class Player:
 
         self.barbell_weight = self.base_bar_weight
 
-        self.strength_bucks = 0
+        self.bucks = 0
         self.bucks_per_rep = 0
 
         self.min_rest_time = 1.0
@@ -59,7 +62,6 @@ class Player:
 
     @property
     def total_weight(self):
-        # total plates weight on both sides + bar weight
         plates_weight = sum(weight * count * 2 for weight, count in self.plates.items())
         return self.base_bar_weight + plates_weight
 
@@ -93,16 +95,16 @@ class Player:
         for item_id, count in self.purchased_sponsorship_items.items():
             total_bonus += self.sponsorships.get(item_id, {}).get('bonus', 0) * count
         return total_bonus
-    
+
     def earn_bucks(self):
-        base_earnings = 10  # or whatever base bucks per rep you want
+        base_earnings = 10
         total_earnings = base_earnings + self.bucks_per_rep + self.get_sponsorship_bonus()
         self.strength_bucks += total_earnings
-        return total_earnings  # Return amount earned for display if needed
+        return total_earnings
 
     def add_income_boost(self, amount):
         self.bucks_per_rep += amount
-    
+
     def reduce_rest_time(self, amount):
         self.rest_reduction += amount
 
@@ -110,3 +112,39 @@ class Player:
         if weight in self.plates:
             self.plates[weight] += 1
             self.calculate_total_weight()
+
+    # === Added save and load methods ===
+    def save(self, filename):
+        """
+        Save current player state to a JSON file.
+        """
+        data = {
+            'reps': self.reps,
+            'strength_bucks': self.strength_bucks,
+            'plates': self.plates,
+            'purchased_recovery_items': self.purchased_recovery_items,
+            'purchased_sponsorship_items': self.purchased_sponsorship_items,
+        }
+        with open(filename, 'w') as f:
+            json.dump(data, f)
+        self.path = filename
+
+    def load(self, filename):
+        """
+        Load player state from a JSON file.
+        """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"No save file found: {filename}")
+        with open(filename, 'r') as f:
+            data = json.load(f)
+        # Reset and apply loaded values
+        self.reset()
+        self.reps = data.get('reps', 0)
+        self.strength_bucks = data.get('strength_bucks', 0)
+        # JSON keys are strings, convert plate keys back to floats
+        loaded_plates = data.get('plates', {})
+        self.plates = {float(k): v for k, v in loaded_plates.items()}
+        self.calculate_total_weight()
+        self.purchased_recovery_items = data.get('purchased_recovery_items', {})
+        self.purchased_sponsorship_items = data.get('purchased_sponsorship_items', {})
+        self.path = filename
