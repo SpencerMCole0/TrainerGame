@@ -10,23 +10,11 @@ from LoadSlotsScreen import LoadSlotsScreen
 
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((1024, 768))
-    # grab your monitor's current resolution
+
+    # Set up initial window at full resolution and make it resizable
     info = pygame.display.Info()
     screen_w, screen_h = info.current_w, info.current_h
-    # start window at full resolution, and let user resize
     screen = pygame.display.set_mode((screen_w, screen_h), pygame.RESIZABLE)
-    
-    while running:
-            for event in pygame.event.get():
-    +            # if the user drags to resize, update our surface & pass to game
-                if event.type == pygame.VIDEORESIZE:
-    -                screen = pygame.display.set_mode((event.w, event.h))
-    +                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-    +                game.screen = screen
-                elif event.type == pygame.QUIT:
-                    running = False
-
     pygame.display.set_caption("Trainer Game")
 
     # Initialize core game objects
@@ -54,11 +42,10 @@ def main():
         @current_screen.setter
         def current_screen(self, screen):
             self._current_screen = screen
-            # Only call on_show if screen.game is assigned
             if hasattr(screen, "on_show") and getattr(screen, "game", None) is not None:
                 screen.on_show()
 
-
+    # Build game context and assign components
     game = GameContext()
     game.player = player
     game.game_state = game_state
@@ -72,19 +59,27 @@ def main():
     game.current_screen = home_screen
 
     # Pass game context to all screens and GUI
-    home_screen.game = game
-    career_path_screen.game = game
-    settings_screen.game = game
-    how_to_play_screen.game = game
-    save_slots_screen.game = game
-    load_slots_screen.game = game
+    for scr in [home_screen, career_path_screen, settings_screen, how_to_play_screen, save_slots_screen, load_slots_screen]:
+        scr.game = game
     gui.game = game
 
     clock = pygame.time.Clock()
 
+    # Main game loop
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.VIDEORESIZE:
+                # Resize window and update screen references
+                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                # Update the surface in GUI and all screens
+                gui.screen = screen
+                home_screen.screen = screen
+                career_path_screen.screen = screen
+                settings_screen.screen = screen
+                how_to_play_screen.screen = screen
+                save_slots_screen.screen = screen
+                load_slots_screen.screen = screen
+            elif event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             game.current_screen.handle_event(event)
@@ -92,6 +87,7 @@ def main():
         game.current_screen.draw()
         pygame.display.flip()
         clock.tick(60)
+
 
 if __name__ == "__main__":
     main()
