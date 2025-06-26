@@ -14,7 +14,5 @@ class GameState:
 
         self.last_rep_time = time.time()
         self.player.reps += 1
-        earned = self.player.earn_bucks()
-        self.player.strength_bucks += earned
-
+        earned = self.player.earn_bucks()      # earn_bucks already adds to strength_bucks
         return f"🏋️‍♂️ Rep done! Earned ${earned}."
