@@ -37,7 +37,7 @@ class Player:
 
         self.barbell_weight = self.base_bar_weight
 
-        self.bucks = 0
+        self.strength_bucks = 0
         self.bucks_per_rep = 0
 
         self.min_rest_time = 1.0

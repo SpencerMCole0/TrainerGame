@@ -36,7 +36,7 @@ class GameGUI:
             f"Reps: {self.player.reps}",
             f"Total Owned Weight: {self.player.total_weight} kg",
             f"Barbell Weight: {self.player.barbell_weight} kg",
-            f"Bucks: ${self.player.bucks}",
+            f"Bucks: ${self.player.strength_bucks}",
             f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
             f"Sponsor Money per Rep: ${self.player.get_sponsorship_bonus()}",
             f"Message: {self.message}",
