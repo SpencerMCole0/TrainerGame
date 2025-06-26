@@ -92,29 +92,28 @@ def main():
     # Attach it to the game context
     game.toggle_fullscreen = toggle_fullscreen
 
-    # Monkey‐patch SettingsScreen to insert our Toggle button
+    # Monkey-patch SettingsScreen to insert our Toggle button
     original_create = settings_screen.create_buttons
     def create_with_fullscreen_toggle():
         original_create()  # build its normal buttons
         w, h = settings_screen.screen.get_size()
-        mid_x    = w // 2
-        start_y  = h // 3
-        gap      = 60
-        label    = f"Fullscreen: {'ON' if fullscreen else 'OFF'}"
+        mid_x   = w // 2
+        start_y = h // 3
+        gap     = 60
+        label   = f"Fullscreen: {'ON' if fullscreen else 'OFF'}"
         btn = Button(
             mid_x - 100,
-            start_y + gap * 2,
+            start_y + gap * 3,
             200, 40,
             settings_screen.font,
             label,
             callback=toggle_fullscreen
         )
-        # insert it just before the "Back" button
-        # (assumes Back is the last in settings_screen.buttons)
-        settings_screen.buttons.insert(-1, btn)
+        # Append it so it's drawn last (and visible)
+        settings_screen.buttons.append(btn)
 
     settings_screen.create_buttons = create_with_fullscreen_toggle
-    settings_screen.create_buttons()  # build them now
+    settings_screen.create_buttons()  # build initial buttons
 
     # Main loop
     while True:
