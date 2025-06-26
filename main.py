@@ -11,6 +11,22 @@ from LoadSlotsScreen import LoadSlotsScreen
 def main():
     pygame.init()
     screen = pygame.display.set_mode((1024, 768))
+    # grab your monitor's current resolution
+    info = pygame.display.Info()
+    screen_w, screen_h = info.current_w, info.current_h
+    # start window at full resolution, and let user resize
+    screen = pygame.display.set_mode((screen_w, screen_h), pygame.RESIZABLE)
+    
+    while running:
+            for event in pygame.event.get():
+    +            # if the user drags to resize, update our surface & pass to game
+                if event.type == pygame.VIDEORESIZE:
+    -                screen = pygame.display.set_mode((event.w, event.h))
+    +                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+    +                game.screen = screen
+                elif event.type == pygame.QUIT:
+                    running = False
+
     pygame.display.set_caption("Trainer Game")
 
     # Initialize core game objects
