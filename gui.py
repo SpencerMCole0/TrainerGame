@@ -62,78 +62,87 @@ class GameGUI:
         self.draw_barbell(80, btn_y + 160)
 
     def draw_store(self):
-        x, y = 30, 30
-        self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (x, y))
-        y += 40
-
-        self.buttons = []
-        self.buttons.append(Button(x, y, 150, 40, self.font, "🧃 Recovery",
-                                callback=lambda: self.set_tab("recovery"),
-                                highlight=(self.store_tab == "recovery")))
-        self.buttons.append(Button(x + 160, y, 150, 40, self.font, "📢 Sponsorships",
-                                callback=lambda: self.set_tab("sponsorship"),
-                                highlight=(self.store_tab == "sponsorship")))
-        self.buttons.append(Button(x + 320, y, 150, 40, self.font, "🏋️ Weights",
-                                callback=lambda: self.set_tab("weights"),
-                                highlight=(self.store_tab == "weights")))
-        y += 50
-
-        all_items = self.store.get_items()
-        grouped = self.store.get_grouped_items()
-
-        if self.store_tab == "recovery":
-            keys = grouped[0]
-        elif self.store_tab == "sponsorship":
-            keys = grouped[1]
-        elif self.store_tab == "weights":
-            keys = grouped[2]
-        else:
-            keys = []
-
-        items = [all_items[key] for key in keys]
-
-        self.screen.blit(self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)), (x, y))
-        y += 30
-
-        row_height = 90
-        col_width = 180
         padding = 30
-        screen_width = self.screen.get_width()
-        screen_height = self.screen.get_height()
-        items_per_row = max(1, (screen_width - 2 * padding) // col_width)
-        current_y = y + 10
+        screen_w = self.screen.get_width()
+        x = padding
 
-        for i, item in enumerate(items):
-            col = i % items_per_row
-            row = i // items_per_row
+        # Title and Bucks
+        title_y = padding
+        self.screen.blit(
+            self.large_font.render("🏪 Store", True, (255, 255, 0)),
+            (x, title_y)
+        )
+        bucks_surf = self.font.render(
+            f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0)
+        )
+        self.screen.blit(
+            bucks_surf,
+            (screen_w - padding - bucks_surf.get_width(), title_y)
+        )
+
+        # Tabs (moved down)
+        tabs_y = title_y + self.large_font.get_height() + 20
+        self.buttons = [
+            Button(x, tabs_y, 150, 40, self.font, "🧃 Recovery",
+                callback=lambda: self.set_tab("recovery"),
+                highlight=(self.store_tab == "recovery")),
+            Button(x + 160, tabs_y, 150, 40, self.font, "📢 Sponsorships",
+                callback=lambda: self.set_tab("sponsorship"),
+                highlight=(self.store_tab == "sponsorship")),
+            Button(x + 320, tabs_y, 150, 40, self.font, "🏋️ Weights",
+                callback=lambda: self.set_tab("weights"),
+                highlight=(self.store_tab == "weights")),
+        ]
+
+        # Items grid starts well below tabs
+        items_start_y = tabs_y + 40 + 20
+
+        # Pick the right group
+        all_items = self.store.get_items()
+        rec, spon, wts = self.store.get_grouped_items()
+        keys = {"recovery": rec, "sponsorship": spon, "weights": wts}[self.store_tab]
+        items = [all_items[k] for k in keys]
+
+        # Layout
+        col_width = 200
+        row_height = 120
+        per_row = max(1, (screen_w - 2 * padding) // col_width)
+
+        for idx, item in enumerate(items):
+            col = idx % per_row
+            row = idx // per_row
             item_x = padding + col * col_width
-            item_y = current_y + row * row_height
+            item_y = items_start_y + row * row_height
 
+            # Cost in yellow, above attribute
+            cost_surf = self.font.render(f"Cost: ${item.cost}", True, (255, 255, 0))
+            self.screen.blit(cost_surf, (item_x, item_y - 50))
+
+            # Attribute in white
+            desc_surf = self.font.render(item.description, True, (255, 255, 255))
+            self.screen.blit(desc_surf, (item_x, item_y - 30))
+
+            # Buy button
             maxed = item.limit is not None and item.times_bought >= item.limit
             label = "MAXED" if maxed else f"Buy ({item.times_bought}/{item.limit})"
-            disabled = not item.can_buy(self.player)[0] or maxed
+            disabled = maxed or not item.can_buy(self.player)[0]
 
-            self.screen.blit(self.font.render(item.description, True, (255, 255, 255)), (item_x, item_y - 20))
-            self.buttons.append(Button(item_x, item_y, 160, 40, self.font, label, lambda i=item: self.purchase(i), disabled=disabled))
+            self.buttons.append(
+                Button(item_x, item_y, 160, 40, self.font, label,
+                    callback=lambda it=item: self.purchase(it),
+                    disabled=disabled)
+            )
 
-        # Position Back to Gym button bottom-right corner
-        btn_width = 160
-        btn_height = 40
-        padding = 20
-        back_x = screen_width - btn_width - padding
-        back_y = screen_height - btn_height - padding
+        # Back to Gym
+        back_w, back_h = 160, 40
+        bx = screen_w - back_w - padding
+        by = self.screen.get_height() - back_h - padding
+        self.buttons.append(
+            Button(bx, by, back_w, back_h, self.font, "Back to Gym",
+                self.go_to_gym, color=(255, 100, 100))
+        )
 
-        self.buttons.append(Button(
-            back_x,
-            back_y,
-            btn_width,
-            btn_height,
-            self.font,
-            "Back to Gym",
-            self.go_to_gym,
-            color=(255, 100, 100)
-        ))
-
+        # Draw all
         for btn in self.buttons:
             btn.draw(self.screen)
 
