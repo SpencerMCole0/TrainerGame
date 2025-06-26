@@ -183,7 +183,7 @@ class GameGUI:
         self.message = "Game saved!"
 
     def exit_to_menu(self):
-        self.player.save()
+        # Just go back to the main menu—no auto-save
         if self.game:
             self.game.current_screen = self.game.home_screen
         self.message = ""
