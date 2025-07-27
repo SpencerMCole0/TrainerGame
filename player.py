@@ -144,3 +144,18 @@ class Player:
         self.purchased_recovery_items = data.get('purchased_recovery_items', {})
         self.purchased_sponsorship_items = data.get('purchased_sponsorship_items', {})
         self.path = filename
+
+    def get_cooldown_debug_info(self):
+        fatigue_multiplier = (self.barbell_weight / self.base_bar_weight) * math.log(self.reps + 1)
+        raw_cooldown = self.base_rest_time * fatigue_multiplier
+        rest_reduction = self.get_total_rest_time_reduction()
+        final_cooldown = max(raw_cooldown - rest_reduction, self.min_rest_time)
+
+        return {
+            "Cooldown Time": round(final_cooldown, 2),
+            "Fatigue Multiplier": round(fatigue_multiplier, 2),
+            "Reps": self.reps,
+            "Base Rest Time": self.base_rest_time,
+            "Rest Reduction": round(rest_reduction, 2),
+            "Min Rest Cap Hit": final_cooldown == self.min_rest_time
+        }

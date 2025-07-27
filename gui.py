@@ -41,14 +41,19 @@ class GameGUI:
         x, y = padding, padding
         line_height = 25
 
+        info = self.player.get_cooldown_debug_info()
+        
         labels = [
             f"Path: {self.player.path}",
-            f"Reps: {self.player.reps}",
+            f"Reps: {info['Reps']}",
             f"Total Owned Weight: {self.player.total_weight:.1f} kg",
             f"Barbell Weight: {self.player.barbell_weight:.1f} kg",
             f"Bucks: ${self.player.strength_bucks}",
-            f"Cooldown: {round(self.player.get_current_rest_time(), 1)}s",
-            f"Sponsor Money per Rep: ${self.player.get_sponsorship_bonus()}",
+            f"Cooldown: {info['Cooldown Time']}s",
+            f"Fatigue x: {info['Fatigue Multiplier']}",
+            f"Rest Reduction: {info['Rest Reduction']}s",
+            f"Min Rest Cap: {'YES' if info['Min Rest Cap Hit'] else 'No'}",
+            f"Sponsor $/rep: ${self.player.get_sponsorship_bonus()}",
             f"Message: {self.message}",
         ]
         for label in labels:
