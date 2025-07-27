@@ -21,7 +21,6 @@ class GameGUI:
         self.message    = ""
         self.game       = None  # will be set in main
 
-        # Slider state
         self.slider_dragging = False
         self.slider_track    = None
         self.slider_handle   = None
@@ -49,11 +48,11 @@ class GameGUI:
             f"Total Owned Weight: {self.player.total_weight:.1f} kg",
             f"Barbell Weight: {self.player.barbell_weight:.1f} kg",
             f"Bucks: ${self.player.strength_bucks}",
+            f"Bucks/Rep: ${info['Bucks/Rep']}",
+            f"Bucks/Sec: ${info['Bucks/Sec']}",
             f"Cooldown: {info['Cooldown Time']}s",
-            f"Fatigue x: {info['Fatigue Multiplier']}",
             f"Rest Reduction: {info['Rest Reduction']}s",
             f"Min Rest Cap: {'YES' if info['Min Rest Cap Hit'] else 'No'}",
-            f"Sponsor $/rep: ${self.player.get_sponsorship_bonus()}",
             f"Message: {self.message}",
         ]
         for label in labels:
@@ -62,7 +61,7 @@ class GameGUI:
 
         y += 20
 
-        # Slider
+        # Slider for barbell weight
         slider_x, slider_y = padding, y
         slider_w, slider_h = 200, 8
         min_wt = self.player.base_bar_weight
@@ -88,7 +87,7 @@ class GameGUI:
         btn_w, btn_h = 120, 40
         gap = 20
 
-        # Cooldown tracking for rep button
+        # Cooldown progress
         if self.game_state:
             time_since_rep = time.time() - self.game_state.last_rep_time
             cooldown_time = self.player.get_current_rest_time()
@@ -119,18 +118,12 @@ class GameGUI:
         extra_v = 20
         tabs_y = padding + self.large_font.get_height() + extra_v
         self.buttons = [
-            Button(padding, tabs_y, 150, 40, self.font, "🧃 Recovery",
-                   callback=lambda: self.set_tab("recovery"),
-                   highlight=(self.store_tab == "recovery")),
-            Button(padding + 160, tabs_y, 150, 40, self.font, "📢 Sponsorships",
-                   callback=lambda: self.set_tab("sponsorship"),
-                   highlight=(self.store_tab == "sponsorship")),
-            Button(padding + 320, tabs_y, 150, 40, self.font, "🏋️ Weights",
-                   callback=lambda: self.set_tab("weights"),
-                   highlight=(self.store_tab == "weights")),
+            Button(padding, tabs_y, 150, 40, self.font, "🧃 Recovery", callback=lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")),
+            Button(padding + 160, tabs_y, 150, 40, self.font, "📢 Sponsorships", callback=lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")),
+            Button(padding + 320, tabs_y, 150, 40, self.font, "🏋️ Weights", callback=lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")),
         ]
-        items_start_y = tabs_y + 40 + extra_v
 
+        items_start_y = tabs_y + 40 + extra_v
         all_items = self.store.get_items()
         rec, spon, wts = self.store.get_grouped_items()
         keys = {"recovery": rec, "sponsorship": spon, "weights": wts}[self.store_tab]
@@ -152,22 +145,23 @@ class GameGUI:
             self.screen.blit(desc_surf, (x, y - 30))
 
             maxed = item.limit is not None and item.times_bought >= item.limit
-            label = "MAXED" if maxed else f"Buy ({item.times_bought}/{item.limit})"
-            disabled = maxed or not item.can_buy(self.player)[0]
-            self.buttons.append(
-                Button(x, y, 160, 40, self.font, label,
-                       callback=lambda it=item: self.purchase(it),
-                       disabled=disabled)
-            )
+            label = "MAXED"
+            if not maxed:
+                if self.store_tab == "sponsorship":
+                    label = f"Buy (+${item.action.__closure__[0].cell_contents}/rep)"
+                elif self.store_tab == "recovery":
+                    label = f"Buy (-{item.action.__closure__[0].cell_contents}s)"
+                else:
+                    label = f"Buy ({item.times_bought}/{item.limit})"
 
-        # Back to Gym button
+            disabled = maxed or not item.can_buy(self.player)[0]
+            self.buttons.append(Button(x, y, 160, 40, self.font, label, callback=lambda it=item: self.purchase(it), disabled=disabled))
+
+        # Back button
         back_w, back_h = 160, 40
         bx = screen_w - back_w - padding
         by = screen_h - back_h - padding
-        self.buttons.append(
-            Button(bx, by, back_w, back_h, self.font, "Back to Gym",
-                   callback=self.go_to_gym, color=(255, 100, 100))
-        )
+        self.buttons.append(Button(bx, by, back_w, back_h, self.font, "Back to Gym", callback=self.go_to_gym, color=(255, 100, 100)))
 
         for btn in self.buttons:
             btn.draw(self.screen)
@@ -190,23 +184,24 @@ class GameGUI:
         }
         PLATE_WIDTH = 15
         PLATE_HEIGHT = 50
+
         pygame.draw.rect(self.screen, BASE_BAR_COLOR, (x, y, BAR_LENGTH, BAR_HEIGHT))
         collar_w, collar_h = 40, 60
         pygame.draw.rect(self.screen, COLLAR_COLOR, (x - collar_w, y - 20, collar_w, collar_h))
         pygame.draw.rect(self.screen, COLLAR_COLOR, (x + BAR_LENGTH, y - 20, collar_w, collar_h))
+
         plate_x = x - collar_w
         for weight in sorted(self.player.plates.keys(), reverse=True):
-            count = self.player.plates[weight]
-            for _ in range(count):
+            for _ in range(self.player.plates[weight]):
                 plate_x -= PLATE_WIDTH
                 color = PLATE_COLORS.get(weight, (100, 100, 100))
-                pygame.draw.rect(self.screen, color, (plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT))
+                pygame.draw.rect(self.screen, color, (plate_x, y - 15, PLATE_WIDTH, PLATE_HEIGHT))
+
         plate_x = x + BAR_LENGTH + collar_w
         for weight in sorted(self.player.plates.keys(), reverse=True):
-            count = self.player.plates[weight]
-            for _ in range(count):
+            for _ in range(self.player.plates[weight]):
                 color = PLATE_COLORS.get(weight, (100, 100, 100))
-                pygame.draw.rect(self.screen, color, (plate_x, y - (PLATE_HEIGHT - BAR_HEIGHT) // 2, PLATE_WIDTH, PLATE_HEIGHT))
+                pygame.draw.rect(self.screen, color, (plate_x, y - 15, PLATE_WIDTH, PLATE_HEIGHT))
                 plate_x += PLATE_WIDTH
 
     def handle_event(self, event):
@@ -224,6 +219,7 @@ class GameGUI:
                 new_wt = min_wt + t * (max_wt - min_wt)
                 snapped = round((new_wt - min_wt) / 5) * 5 + min_wt
                 self.player.barbell_weight = max(min_wt, min(snapped, max_wt))
+
         for btn in self.buttons:
             btn.handle_event(event)
 
