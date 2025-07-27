@@ -110,7 +110,11 @@ class Player:
         self.bucks_per_rep += amount
 
     def reduce_rest_time(self, amount):
-        self.rest_reduction += amount  # optional if you still use it somewhere
+        # Find which recovery item this amount corresponds to
+        for item_id, val in self.recovery_rest_time_values.items():
+            if val == amount:
+                self.purchased_recovery_items[item_id] += 1
+                break
 
     def add_plate(self, weight):
         if weight in self.plates:
