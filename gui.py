@@ -34,8 +34,13 @@ class GameGUI:
             self.draw_gym()
 
     def draw_gym(self):
-        x, y = 30, 30
+        self.buttons = []
+        self.screen.fill((30, 30, 30))
+
+        padding = 30
+        x, y = padding, padding
         line_height = 25
+
         labels = [
             f"Path: {self.player.path}",
             f"Reps: {self.player.reps}",
@@ -50,37 +55,43 @@ class GameGUI:
             self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
             y += line_height
 
-        # Core action buttons
-        self.buttons = []
-        btn_y = y + 20
-        self.buttons.append(Button(50,  btn_y,      100, 40, self.font, "Do Rep",       self.do_rep))
-        self.buttons.append(Button(170, btn_y,      100, 40, self.font, "Open Store",  self.open_store))
-        self.buttons.append(Button(50,  btn_y + 50, 100, 40, self.font, "Save & Exit", self.save_and_exit))
-        self.buttons.append(Button(170, btn_y + 50, 100, 40, self.font, "Exit to Menu",self.exit_to_menu))
-
-        # Draw barbell graphic
-        self.draw_barbell(80, btn_y + 160)
+        y += 20  # extra space
 
         # Draw weight slider
-        slider_x, slider_y = 50, btn_y + 110
+        slider_x, slider_y = padding, y
         slider_w, slider_h = 200, 8
         min_wt = self.player.base_bar_weight
         max_wt = self.player.total_weight
-        # track
+
+        # Track
         pygame.draw.rect(self.screen, (100, 100, 100), (slider_x, slider_y, slider_w, slider_h))
-        # handle
+
+        # Handle
         t = (self.player.barbell_weight - min_wt) / (max_wt - min_wt) if max_wt > min_wt else 0
         handle_x = slider_x + t * slider_w
         handle_y = slider_y + slider_h // 2
         pygame.draw.circle(self.screen, (200, 200, 0), (int(handle_x), int(handle_y)), 12)
-        # hit-test rects
-        self.slider_track  = pygame.Rect(slider_x, slider_y, slider_w, slider_h)
+
+        self.slider_track = pygame.Rect(slider_x, slider_y, slider_w, slider_h)
         self.slider_handle = pygame.Rect(int(handle_x) - 12, int(handle_y) - 12, 24, 24)
-        # current weight label
+
         wt_label = self.font.render(f"Barbell Weight: {self.player.barbell_weight:.1f} kg", True, (255, 255, 255))
         self.screen.blit(wt_label, (slider_x, slider_y - 30))
 
-        # Draw buttons
+        y = slider_y + 60  # Move down for barbell drawing
+        self.draw_barbell(slider_x, y)
+
+        # Buttons below barbell
+        btn_y = y + 100
+        btn_x = padding
+        btn_w, btn_h = 120, 40
+        gap = 20
+
+        self.buttons.append(Button(btn_x, btn_y, btn_w, btn_h, self.font, "Do Rep", self.do_rep))
+        self.buttons.append(Button(btn_x + btn_w + gap, btn_y, btn_w, btn_h, self.font, "Open Store", self.open_store))
+        self.buttons.append(Button(btn_x, btn_y + btn_h + gap, btn_w, btn_h, self.font, "Save & Exit", self.save_and_exit))
+        self.buttons.append(Button(btn_x + btn_w + gap, btn_y + btn_h + gap, btn_w, btn_h, self.font, "Exit to Menu", self.exit_to_menu))
+
         for btn in self.buttons:
             btn.draw(self.screen)
 
