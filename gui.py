@@ -42,7 +42,7 @@ class GameGUI:
         line_height = 25
 
         info = self.player.get_cooldown_debug_info()
-        
+
         labels = [
             f"Path: {self.player.path}",
             f"Reps: {info['Reps']}",
@@ -60,18 +60,15 @@ class GameGUI:
             self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
             y += line_height
 
-        y += 20  # extra space
+        y += 20
 
-        # Draw weight slider
+        # Slider
         slider_x, slider_y = padding, y
         slider_w, slider_h = 200, 8
         min_wt = self.player.base_bar_weight
         max_wt = self.player.total_weight
 
-        # Track
         pygame.draw.rect(self.screen, (100, 100, 100), (slider_x, slider_y, slider_w, slider_h))
-
-        # Handle
         t = (self.player.barbell_weight - min_wt) / (max_wt - min_wt) if max_wt > min_wt else 0
         handle_x = slider_x + t * slider_w
         handle_y = slider_y + slider_h // 2
@@ -83,16 +80,26 @@ class GameGUI:
         wt_label = self.font.render(f"Barbell Weight: {self.player.barbell_weight:.1f} kg", True, (255, 255, 255))
         self.screen.blit(wt_label, (slider_x, slider_y - 30))
 
-        y = slider_y + 60  # Move down for barbell drawing
+        y = slider_y + 60
         self.draw_barbell(slider_x, y)
 
-        # Buttons below barbell
         btn_y = y + 100
         btn_x = padding
         btn_w, btn_h = 120, 40
         gap = 20
 
-        self.buttons.append(Button(btn_x, btn_y, btn_w, btn_h, self.font, "Do Rep", self.do_rep))
+        # Cooldown tracking for rep button
+        if self.game_state:
+            time_since_rep = time.time() - self.game_state.last_rep_time
+            cooldown_time = self.player.get_current_rest_time()
+            progress = min(time_since_rep / cooldown_time, 1.0)
+        else:
+            progress = 1.0
+
+        do_rep_btn = Button(btn_x, btn_y, btn_w, btn_h, self.font, "Do Rep", self.do_rep)
+        do_rep_btn.update_cooldown(progress)
+
+        self.buttons.append(do_rep_btn)
         self.buttons.append(Button(btn_x + btn_w + gap, btn_y, btn_w, btn_h, self.font, "Open Store", self.open_store))
         self.buttons.append(Button(btn_x, btn_y + btn_h + gap, btn_w, btn_h, self.font, "Save & Exit", self.save_and_exit))
         self.buttons.append(Button(btn_x + btn_w + gap, btn_y + btn_h + gap, btn_w, btn_h, self.font, "Exit to Menu", self.exit_to_menu))
@@ -105,9 +112,7 @@ class GameGUI:
         screen_w = self.screen.get_width()
         screen_h = self.screen.get_height()
 
-        # Title
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (padding, padding))
-        # Bucks top-right
         bucks = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
         self.screen.blit(bucks, (screen_w - padding - bucks.get_width(), padding))
 
@@ -205,7 +210,6 @@ class GameGUI:
                 plate_x += PLATE_WIDTH
 
     def handle_event(self, event):
-        # Slider drag logic
         if event.type == pygame.MOUSEBUTTONDOWN and self.slider_handle and self.slider_handle.collidepoint(event.pos):
             self.slider_dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -220,7 +224,6 @@ class GameGUI:
                 new_wt = min_wt + t * (max_wt - min_wt)
                 snapped = round((new_wt - min_wt) / 5) * 5 + min_wt
                 self.player.barbell_weight = max(min_wt, min(snapped, max_wt))
-        # Button events
         for btn in self.buttons:
             btn.handle_event(event)
 
