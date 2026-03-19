@@ -142,7 +142,10 @@ def main():
 
         game.current_screen.draw()
         pygame.display.flip()
-        clock.tick(60)
+
+        # Update passive income and time-based state.
+        dt = clock.tick(60) / 1000.0
+        game_state.update(dt)
 
 
 if __name__ == "__main__":

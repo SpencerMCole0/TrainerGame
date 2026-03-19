@@ -52,8 +52,9 @@ class GameGUI:
 
         # Buck info (top-right)
         buck_texts = [
-            f"Bucks: ${self.player.strength_bucks}",
-            f"Bucks/Rep: ${info['Bucks/Rep']}",
+            f"GymCoins: {self.player.gym_coins:.2f}",
+            f"GymCoins/Rep: {info['GymCoins/Rep']}",
+            f"Active Remaining: {info['Active Remaining']}s",
         ]
         buck_surfs = [self.font.render(t, True, (255, 255, 255)) for t in buck_texts]
 
@@ -90,7 +91,7 @@ class GameGUI:
         top_right_h = len(buck_surfs) * line_height
         top_section_height = max(top_left_h, top_right_h)
 
-        weight_block_height = len(weight_surfs) * line_height + slider_h + 30 + 20  # include extra padding before slider
+        weight_block_height = len(weight_surfs) * line_height + slider_h + 40  # include extra padding before slider
         cooldown_block_height = len(cooldown_surfs) * line_height
         bottom_section_height = max(weight_block_height, cooldown_block_height)
 
@@ -135,7 +136,7 @@ class GameGUI:
             y_weights += line_height
 
         # Add extra spacing before the slider so it doesn't overlap the weight text
-        y_weights += 20
+        y_weights += 40
         slider_x = weights_x
         slider_y = y_weights
         pygame.draw.rect(self.screen, (100, 100, 100), (slider_x, slider_y, slider_w, slider_h))
@@ -184,7 +185,8 @@ class GameGUI:
         else:
             progress = 1.0
 
-        do_rep_btn = Button(btn_x, btn_y, btn_w, btn_h, self.font, "Do Rep", self.do_rep)
+        can_rep = self.game_state.can_rep() if self.game_state else True
+        do_rep_btn = Button(btn_x, btn_y, btn_w, btn_h, self.font, "Do Rep", self.do_rep, disabled=not can_rep)
         do_rep_btn.update_cooldown(progress)
 
         self.buttons.append(do_rep_btn)
@@ -201,7 +203,7 @@ class GameGUI:
         screen_h = self.screen.get_height()
 
         self.screen.blit(self.large_font.render("🏪 Store", True, (255, 255, 0)), (padding, padding))
-        bucks = self.font.render(f"Your Bucks: ${self.player.strength_bucks}", True, (0, 255, 0))
+        bucks = self.font.render(f"Your GymCoins: {self.player.gym_coins:.2f}", True, (0, 255, 0))
         self.screen.blit(bucks, (screen_w - padding - bucks.get_width(), padding))
 
         extra_v = 20
@@ -210,21 +212,22 @@ class GameGUI:
         # Make the tab buttons centered across the screen so layout scales to different window sizes
         tab_btn_w, tab_btn_h = 150, 40
         tab_gap = 20
-        total_tabs_w = 3 * tab_btn_w + 2 * tab_gap
+        total_tabs_w = 4 * tab_btn_w + 3 * tab_gap
         tabs_start_x = max(padding, (screen_w - total_tabs_w) // 2)
 
         self.buttons = [
             Button(tabs_start_x, tabs_y, tab_btn_w, tab_btn_h, self.font, "🧃 Recovery", callback=lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")),
             Button(tabs_start_x + (tab_btn_w + tab_gap) * 1, tabs_y, tab_btn_w, tab_btn_h, self.font, "📢 Sponsorships", callback=lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")),
-            Button(tabs_start_x + (tab_btn_w + tab_gap) * 2, tabs_y, tab_btn_w, tab_btn_h, self.font, "🏋️ Weights", callback=lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")),
+            Button(tabs_start_x + (tab_btn_w + tab_gap) * 2, tabs_y, tab_btn_w, tab_btn_h, self.font, "🏃 Trainers", callback=lambda: self.set_tab("trainers"), highlight=(self.store_tab == "trainers")),
+            Button(tabs_start_x + (tab_btn_w + tab_gap) * 3, tabs_y, tab_btn_w, tab_btn_h, self.font, "🏋️ Weights", callback=lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")),
         ]
 
         # Ensure item text is drawn below the tab buttons to avoid overlap
         # Note: item cost text is drawn 50px above the button, so we add enough top padding.
         items_start_y = tabs_y + tab_btn_h + 70
         all_items = self.store.get_items()
-        rec, spon, wts = self.store.get_grouped_items()
-        keys = {"recovery": rec, "sponsorship": spon, "weights": wts}[self.store_tab]
+        rec, spon, trainers, wts = self.store.get_grouped_items()
+        keys = {"recovery": rec, "sponsorship": spon, "trainers": trainers, "weights": wts}[self.store_tab]
         items = [all_items[k] for k in keys]
 
         cols = 4
@@ -237,7 +240,7 @@ class GameGUI:
             x = padding + col * col_width
             y = items_start_y + row * row_height
 
-            cost_surf = self.font.render(f"Cost: ${item.cost}", True, (255, 255, 0))
+            cost_surf = self.font.render(f"Cost: {item.cost:.0f} GC", True, (255, 255, 0))
             self.screen.blit(cost_surf, (x, y - 50))
             desc_surf = self.font.render(item.description, True, (255, 255, 255))
             self.screen.blit(desc_surf, (x, y - 30))

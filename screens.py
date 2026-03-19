@@ -87,7 +87,7 @@ class CareerPathScreen:
     def select_path(self, path):
         self.game.player.path = path
         if getattr(self.game.settings_screen, "start_with_money", False):
-            self.game.player.strength_bucks += 100000
+            self.game.player.gym_coins += 100000
         self.game.current_screen = self.game.gui  # Switch to main game GUI
 
     def goto_home(self):
@@ -145,8 +145,8 @@ class StoreScreen:
         self.text_lines = [
             "Trainer Game is an endless career clicker.",
             "Choose your path and start lifting weights!",
-            "Do reps to earn strength bucks.",
-            "Use bucks to buy better weights and upgrades.",
+            "Do reps to earn GymCoins.",
+            "Use GymCoins to buy better weights and upgrades.",
             "Manage your rest time to maximize gains.",
             "Good luck and lift hard!",
             "",
@@ -177,8 +177,8 @@ class HowToPlayScreen:
         self.text_lines = [
             "Trainer Game is an endless career clicker.",
             "Choose your path and start lifting weights!",
-            "Do reps to earn strength bucks.",
-            "Use bucks to buy better weights and upgrades.",
+            "Do reps to earn GymCoins.",
+            "Use GymCoins to buy better weights and upgrades.",
             "Manage your rest time to maximize gains.",
             "Good luck and lift hard!",
             "",

@@ -13,17 +13,15 @@ store_items = {
     "r9": StoreItem("-1.8s rest time", 450, "Reduces rest time by 1.8 seconds", lambda p, amt=1.8: p.reduce_rest_time(amt), limit=40),
     "r10": StoreItem("-2.0s rest time", 500, "Reduces rest time by 2.0 seconds", lambda p, amt=2.0: p.reduce_rest_time(amt), limit=20),
 
-    # Sponsorship placeholders
-    "s1": StoreItem("Placeholder #1", 50, "Adds $5 per rep", lambda p, amt=5: p.add_income_boost(amt), limit=200),
-    "s2": StoreItem("Placeholder #2", 100, "Adds $10 per rep", lambda p, amt=10: p.add_income_boost(amt), limit=180),
-    "s3": StoreItem("Placeholder #3", 150, "Adds $15 per rep", lambda p, amt=15: p.add_income_boost(amt), limit=160),
-    "s4": StoreItem("Placeholder #4", 200, "Adds $20 per rep", lambda p, amt=20: p.add_income_boost(amt), limit=140),
-    "s5": StoreItem("Placeholder #5", 250, "Adds $25 per rep", lambda p, amt=25: p.add_income_boost(amt), limit=120),
-    "s6": StoreItem("Placeholder #6", 300, "Adds $30 per rep", lambda p, amt=30: p.add_income_boost(amt), limit=100),
-    "s7": StoreItem("Placeholder #7", 350, "Adds $35 per rep", lambda p, amt=35: p.add_income_boost(amt), limit=80),
-    "s8": StoreItem("Placeholder #8", 400, "Adds $40 per rep", lambda p, amt=40: p.add_income_boost(amt), limit=60),
-    "s9": StoreItem("Placeholder #9", 450, "Adds $45 per rep", lambda p, amt=45: p.add_income_boost(amt), limit=40),
-    "s10": StoreItem("Placeholder #10", 500, "Adds $50 per rep", lambda p, amt=50: p.add_income_boost(amt), limit=20),
+    # Sponsorships: permanent GymCoin multipliers (percent)
+    "s1": StoreItem("Local Sponsor", 100, "+5% GymCoins per rep", lambda p, amt=0.05: p.add_sponsorship_multiplier(amt), limit=50, growth=1.15),
+    "s2": StoreItem("Regional Sponsor", 200, "+10% GymCoins per rep", lambda p, amt=0.10: p.add_sponsorship_multiplier(amt), limit=40, growth=1.15),
+    "s3": StoreItem("National Sponsor", 400, "+15% GymCoins per rep", lambda p, amt=0.15: p.add_sponsorship_multiplier(amt), limit=30, growth=1.15),
+    "s4": StoreItem("Brand Partnership", 800, "+20% GymCoins per rep", lambda p, amt=0.20: p.add_sponsorship_multiplier(amt), limit=20, growth=1.15),
+    "s5": StoreItem("Mega Sponsor", 1600, "+25% GymCoins per rep", lambda p, amt=0.25: p.add_sponsorship_multiplier(amt), limit=15, growth=1.15),
+
+    # Trainer hires (passive reps/sec)
+    "t1": StoreItem("Hire Trainer", 50, "Adds a trainer that generates passive reps over time.", lambda p: p.add_trainer(), limit=None, growth=1.15),
 
     # Kilogram plates for barbell
     "p0_5": StoreItem("Buy 0.5kg Plate", 5, "Add one 0.5kg plate (each side)", lambda p, wt=0.5: p.add_plate(wt), limit=20),
@@ -47,5 +45,6 @@ class Store:
     def get_grouped_items(self):
         recovery = [k for k in self.items if k.startswith("r")]
         sponsorship = [k for k in self.items if k.startswith("s")]
+        trainers = [k for k in self.items if k.startswith("t")]
         weights = [k for k in self.items if k.startswith("p")]
-        return recovery, sponsorship, weights
+        return recovery, sponsorship, trainers, weights
