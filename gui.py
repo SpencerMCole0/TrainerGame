@@ -117,13 +117,22 @@ class GameGUI:
 
         extra_v = 20
         tabs_y = padding + self.large_font.get_height() + extra_v
+
+        # Make the tab buttons centered across the screen so layout scales to different window sizes
+        tab_btn_w, tab_btn_h = 150, 40
+        tab_gap = 20
+        total_tabs_w = 3 * tab_btn_w + 2 * tab_gap
+        tabs_start_x = max(padding, (screen_w - total_tabs_w) // 2)
+
         self.buttons = [
-            Button(padding, tabs_y, 150, 40, self.font, "🧃 Recovery", callback=lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")),
-            Button(padding + 160, tabs_y, 150, 40, self.font, "📢 Sponsorships", callback=lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")),
-            Button(padding + 320, tabs_y, 150, 40, self.font, "🏋️ Weights", callback=lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")),
+            Button(tabs_start_x, tabs_y, tab_btn_w, tab_btn_h, self.font, "🧃 Recovery", callback=lambda: self.set_tab("recovery"), highlight=(self.store_tab == "recovery")),
+            Button(tabs_start_x + (tab_btn_w + tab_gap) * 1, tabs_y, tab_btn_w, tab_btn_h, self.font, "📢 Sponsorships", callback=lambda: self.set_tab("sponsorship"), highlight=(self.store_tab == "sponsorship")),
+            Button(tabs_start_x + (tab_btn_w + tab_gap) * 2, tabs_y, tab_btn_w, tab_btn_h, self.font, "🏋️ Weights", callback=lambda: self.set_tab("weights"), highlight=(self.store_tab == "weights")),
         ]
 
-        items_start_y = tabs_y + 40 + extra_v
+        # Ensure item text is drawn below the tab buttons to avoid overlap
+        # Note: item cost text is drawn 50px above the button, so we add enough top padding.
+        items_start_y = tabs_y + tab_btn_h + 70
         all_items = self.store.get_items()
         rec, spon, wts = self.store.get_grouped_items()
         keys = {"recovery": rec, "sponsorship": spon, "weights": wts}[self.store_tab]
@@ -131,7 +140,7 @@ class GameGUI:
 
         cols = 4
         col_width = (screen_w - 2 * padding) // cols
-        row_height = 120
+        row_height = tab_btn_h + 90
 
         for idx, item in enumerate(items):
             col = idx % cols
