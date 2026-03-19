@@ -36,8 +36,10 @@ class GameGUI:
         self.buttons = []
         self.screen.fill((30, 30, 30))
 
+        screen_w = self.screen.get_width()
+        screen_h = self.screen.get_height()
+
         padding = 30
-        x, y = padding, padding
         line_height = 25
 
         info = self.player.get_cooldown_debug_info()
@@ -55,15 +57,39 @@ class GameGUI:
             f"Min Rest Cap: {'YES' if info['Min Rest Cap Hit'] else 'No'}",
             f"Message: {self.message}",
         ]
+
+        # Layout constants
+        btn_w, btn_h = 120, 40
+        gap = 20
+        labels_height = len(labels) * line_height
+        slider_to_barbell = 60
+        barbell_height = 60
+        button_group_height = btn_h * 2 + gap
+        vertical_spacing = 20
+
+        # Compute total height and vertically center
+        total_height = (
+            labels_height
+            + vertical_spacing
+            + slider_to_barbell
+            + barbell_height
+            + vertical_spacing
+            + button_group_height
+        )
+        y = max(padding, (screen_h - total_height) // 2)
+
+        # Center the labels horizontally
         for label in labels:
-            self.screen.blit(self.font.render(label, True, (255, 255, 255)), (x, y))
+            surf = self.font.render(label, True, (255, 255, 255))
+            self.screen.blit(surf, ((screen_w - surf.get_width()) // 2, y))
             y += line_height
 
-        y += 20
+        y += vertical_spacing
 
-        # Slider for barbell weight
-        slider_x, slider_y = padding, y
+        # Slider for barbell weight (centered)
         slider_w, slider_h = 200, 8
+        slider_x = (screen_w - slider_w) // 2
+        slider_y = y
         min_wt = self.player.base_bar_weight
         max_wt = self.player.total_weight
 
@@ -77,15 +103,20 @@ class GameGUI:
         self.slider_handle = pygame.Rect(int(handle_x) - 12, int(handle_y) - 12, 24, 24)
 
         wt_label = self.font.render(f"Barbell Weight: {self.player.barbell_weight:.1f} kg", True, (255, 255, 255))
-        self.screen.blit(wt_label, (slider_x, slider_y - 30))
+        self.screen.blit(wt_label, ((screen_w - wt_label.get_width()) // 2, slider_y - 30))
 
-        y = slider_y + 60
-        self.draw_barbell(slider_x, y)
+        y = slider_y + slider_to_barbell
 
-        btn_y = y + 100
-        btn_x = padding
-        btn_w, btn_h = 120, 40
-        gap = 20
+        # Draw centered barbell
+        bar_x = (screen_w - 300) // 2
+        self.draw_barbell(bar_x, y)
+
+        y += barbell_height + vertical_spacing
+
+        # Center the action buttons beneath the barbell
+        btn_group_w = btn_w * 2 + gap
+        btn_x = (screen_w - btn_group_w) // 2
+        btn_y = y
 
         # Cooldown progress
         if self.game_state:
