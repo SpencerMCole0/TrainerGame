@@ -147,10 +147,17 @@ class GameGUI:
             maxed = item.limit is not None and item.times_bought >= item.limit
             label = "MAXED"
             if not maxed:
-                if self.store_tab == "sponsorship":
-                    label = f"Buy (+${item.action.__closure__[0].cell_contents}/rep)"
-                elif self.store_tab == "recovery":
-                    label = f"Buy (-{item.action.__closure__[0].cell_contents}s)"
+                # Extract the amount from the action lambda (defaults or closure).
+                amt = None
+                if getattr(item.action, "__defaults__", None):
+                    amt = item.action.__defaults__[0]
+                elif getattr(item.action, "__closure__", None):
+                    amt = item.action.__closure__[0].cell_contents
+
+                if self.store_tab == "sponsorship" and amt is not None:
+                    label = f"Buy (+${amt}/rep)"
+                elif self.store_tab == "recovery" and amt is not None:
+                    label = f"Buy (-{amt}s)"
                 else:
                     label = f"Buy ({item.times_bought}/{item.limit})"
 

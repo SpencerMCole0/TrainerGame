@@ -4,7 +4,7 @@ from player import Player
 from game_state import GameState
 from gui import GameGUI
 from utils import Button
-from screens import HomeScreen, CareerPathScreen, SettingsScreen, HowToPlayScreen
+from screens import HomeScreen, CareerPathScreen, SettingsScreen, HowToPlayScreen, StoreScreen
 from SaveSlotsScreen import SaveSlotsScreen
 from LoadSlotsScreen import LoadSlotsScreen
 
@@ -30,6 +30,7 @@ def main():
     # Screens
     home_screen = HomeScreen(screen, None)
     career_path_screen = CareerPathScreen(screen, None)
+    store_screen = StoreScreen(screen, None)
     settings_screen = SettingsScreen(screen, None)
     how_to_play_screen = HowToPlayScreen(screen, None)
     save_slots_screen = SaveSlotsScreen(screen, None)
@@ -38,6 +39,7 @@ def main():
     # List of all screens for easy updates
     all_screens = [
         home_screen,
+        store_screen,
         career_path_screen,
         settings_screen,
         how_to_play_screen,

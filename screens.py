@@ -137,6 +137,38 @@ class SettingsScreen:
     def goto_home(self):
         self.game.current_screen = self.game.home_screen
 
+class StoreScreen:
+    def __init__(self, screen, game):
+        self.screen = screen
+        self.game = game
+        self.font = pygame.font.SysFont(None, 24)
+        self.text_lines = [
+            "Trainer Game is an endless career clicker.",
+            "Choose your path and start lifting weights!",
+            "Do reps to earn strength bucks.",
+            "Use bucks to buy better weights and upgrades.",
+            "Manage your rest time to maximize gains.",
+            "Good luck and lift hard!",
+            "",
+            "Back to Menu button below."
+        ]
+        self.back_button = Button(30, screen.get_height() - 80, 150, 40, self.font, "Back to Menu", self.goto_home)
+
+    def draw(self):
+        self.screen.fill((40, 40, 50))
+        y = 30
+        for line in self.text_lines:
+            text_surf = self.font.render(line, True, (255, 255, 255))
+            self.screen.blit(text_surf, (30, y))
+            y += 30
+        self.back_button.draw(self.screen)
+
+    def handle_event(self, event):
+        self.back_button.handle_event(event)
+
+    def goto_home(self):
+        self.game.current_screen = self.game.home_screen
+
 class HowToPlayScreen:
     def __init__(self, screen, game):
         self.screen = screen
