@@ -48,6 +48,13 @@ class Player:
         self.current_session_seconds_remaining = 0.0
         self._active_day = time.localtime().tm_yday
 
+        # Daily stats
+        self.daily_gymcoins_earned = 0.0
+
+        # Persistent best records
+        self.best_rep_per_sec = 0.0
+        self.best_daily_gymcoins = 0.0
+
         # Recovery Upgrades (reduces rest time)
         self.recovery_rest_time_values = {
             "r1": 0.2, "r2": 0.4, "r3": 0.6, "r4": 0.8, "r5": 1.0,
@@ -130,6 +137,8 @@ class Player:
     def earn_gym_coins(self, reps=1):
         earned = reps * self.get_gymcoins_per_rep()
         self.gym_coins += earned
+        self.daily_gymcoins_earned += earned
+        self.best_daily_gymcoins = max(self.best_daily_gymcoins, self.daily_gymcoins_earned)
         self.last_rep_timestamp = time.time()
         return earned
 
@@ -200,6 +209,9 @@ class Player:
             'purchased_recovery_items': self.purchased_recovery_items,
             'purchased_sponsorship_items': self.purchased_sponsorship_items,
             'prestige_level': self.prestige_level,
+            'best_rep_per_sec': self.best_rep_per_sec,
+            'best_daily_gymcoins': self.best_daily_gymcoins,
+            'daily_gymcoins_earned': self.daily_gymcoins_earned,
         }
         with open(filename, 'w') as f:
             json.dump(data, f)
@@ -220,7 +232,16 @@ class Player:
         self.purchased_recovery_items = data.get('purchased_recovery_items', {})
         self.purchased_sponsorship_items = data.get('purchased_sponsorship_items', {})
         self.prestige_level = data.get('prestige_level', 0)
+        self.best_rep_per_sec = data.get('best_rep_per_sec', 0.0)
+        self.best_daily_gymcoins = data.get('best_daily_gymcoins', 0.0)
+        self.daily_gymcoins_earned = data.get('daily_gymcoins_earned', 0.0)
         self.path = filename
+
+    def get_seconds_until_reset(self):
+        # Returns seconds until next local midnight
+        now = time.localtime()
+        seconds_since_midnight = now.tm_hour * 3600 + now.tm_min * 60 + now.tm_sec
+        return 24 * 3600 - seconds_since_midnight
 
     def get_cooldown_debug_info(self):
         return {
@@ -228,7 +249,11 @@ class Player:
             "Active Remaining": round(max(0.0, self.active_seconds_remaining), 1),
             "Session Remaining": round(max(0.0, self.current_session_seconds_remaining), 1),
             "Sessions Used": self.daily_sessions_used,
+            "Time to Reset": f"{int(self.get_seconds_until_reset()//3600):02d}:{int((self.get_seconds_until_reset()%3600)//60):02d}:{int(self.get_seconds_until_reset()%60):02d}",
             "Reps": self.reps,
+            "Best Rep/Sec": round(self.best_rep_per_sec, 2),
+            "Daily GymCoins": round(self.daily_gymcoins_earned, 2),
+            "Best Daily GymCoins": round(self.best_daily_gymcoins, 2),
             "Rest Reduction": round(self.get_total_rest_time_reduction(), 2),
             "Min Rest Cap Hit": self.get_current_rest_time() == self.min_rest_time,
             "GymCoins/Rep": round(self.get_gymcoins_per_rep(), 2),

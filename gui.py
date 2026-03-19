@@ -54,7 +54,10 @@ class GameGUI:
         buck_texts = [
             f"GymCoins: {self.player.gym_coins:.2f}",
             f"GymCoins/Rep: {info['GymCoins/Rep']}",
-            f"Active Remaining: {info['Active Remaining']}s",
+            f"Best Rep/Sec: {info['Best Rep/Sec']}",
+            f"Best Daily GC: {info['Best Daily GymCoins']}",
+            f"Reset in: {info['Time to Reset']}",
+            f"Active Rem: {info['Active Remaining']}s",
         ]
         buck_surfs = [self.font.render(t, True, (255, 255, 255)) for t in buck_texts]
 

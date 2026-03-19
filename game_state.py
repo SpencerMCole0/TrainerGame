@@ -9,6 +9,8 @@ class GameState:
         return time.localtime().tm_yday
 
     def _reset_daily_budget(self):
+        self.player.best_daily_gymcoins = max(self.player.best_daily_gymcoins, self.player.daily_gymcoins_earned)
+        self.player.daily_gymcoins_earned = 0.0
         self.player.active_seconds_remaining = self.player.daily_active_budget
         self.player.daily_sessions_used = 0
         self.player.current_session_seconds_remaining = 0.0
@@ -44,7 +46,15 @@ class GameState:
             self.player.daily_sessions_used += 1
             self.player.current_session_seconds_remaining = 10 * 60  # 10 minute session
 
-        self.last_rep_time = time.time()
+        now = time.time()
+        if self.last_rep_time > 0:
+            delta = now - self.last_rep_time
+            if delta > 0:
+                rep_sec = 1.0 / delta
+                if rep_sec > self.player.best_rep_per_sec:
+                    self.player.best_rep_per_sec = rep_sec
+
+        self.last_rep_time = now
         self.player.active_seconds_remaining = max(0.0, self.player.active_seconds_remaining - 0.5)
         self.player.current_session_seconds_remaining = max(0.0, self.player.current_session_seconds_remaining - 0.5)
         self.player.reps += 1
