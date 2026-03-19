@@ -94,8 +94,17 @@ class Player:
             for item_id, count in self.purchased_recovery_items.items()
         )
 
+    def get_weight_rest_penalty(self):
+        # Heavier barbells require more recovery between reps.
+        # Use the currently selected barbell weight (not owned plates) so the cooldown
+        # updates immediately when the player changes the slider.
+        extra_weight = max(0.0, self.barbell_weight - self.base_bar_weight)
+        return extra_weight * 0.02  # 0.02s extra rest per kg
+
     def get_current_rest_time(self):
-        return max(self.base_rest_time - self.get_total_rest_time_reduction(), self.min_rest_time)
+        base = self.base_rest_time + self.get_weight_rest_penalty()
+        reduced = base - self.get_total_rest_time_reduction()
+        return max(reduced, self.min_rest_time)
 
     def get_career_multipliers(self):
         # Returns (click_mult, passive_mult)

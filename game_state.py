@@ -4,6 +4,8 @@ class GameState:
     def __init__(self, player):
         self.player = player
         self.last_rep_time = 0
+        self.cooldown_end_time = 0
+        self.last_cooldown_duration = 0
 
     def _current_day(self):
         return time.localtime().tm_yday
@@ -16,8 +18,9 @@ class GameState:
         self.player.current_session_seconds_remaining = 0.0
 
     def can_rep(self):
-        # Requires cooldown and remaining active session seconds.
-        if time.time() - self.last_rep_time < self.player.get_current_rest_time():
+        # Requires active session time and cooldown based on the last rep.
+        now = time.time()
+        if now < self.cooldown_end_time:
             return False
         if self.player.active_seconds_remaining < 0.5:
             return False
@@ -55,6 +58,8 @@ class GameState:
                     self.player.best_rep_per_sec = rep_sec
 
         self.last_rep_time = now
+        self.last_cooldown_duration = self.player.get_current_rest_time()
+        self.cooldown_end_time = now + self.last_cooldown_duration
         self.player.active_seconds_remaining = max(0.0, self.player.active_seconds_remaining - 0.5)
         self.player.current_session_seconds_remaining = max(0.0, self.player.current_session_seconds_remaining - 0.5)
         self.player.reps += 1

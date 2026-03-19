@@ -70,7 +70,7 @@ class GameGUI:
 
         # Cooldown info (bottom-right)
         cooldown_texts = [
-            f"Cooldown: {info['Cooldown Time']}s",
+            f"Next Rep Cooldown: {info['Cooldown Time']}s",
             f"Rest Reduction: {info['Rest Reduction']}s",
             f"Min Rest Cap: {'YES' if info['Min Rest Cap Hit'] else 'No'}",
         ]
@@ -180,11 +180,25 @@ class GameGUI:
         btn_x = (screen_w - btn_group_w) // 2
         btn_y = y_buttons
 
-        # Cooldown progress
+        # Cooldown progress (fixed to the cooldown duration at the time of the last rep)
         if self.game_state:
-            time_since_rep = time.time() - self.game_state.last_rep_time
-            cooldown_time = self.player.get_current_rest_time()
-            progress = min(time_since_rep / cooldown_time, 1.0)
+            now = time.time()
+            remaining = max(0.0, self.game_state.cooldown_end_time - now)
+
+            # Use the cooldown duration recorded when the rep was done (so weight changes don't affect an in-progress cooldown).
+            duration = max(self.game_state.last_cooldown_duration, 0.001)
+            progress = 1.0 - min(remaining / duration, 1.0)
+
+            if remaining > 0:
+                rest_text = f"Cooldown until Next Rep: {remaining:.1f}s"
+                rest_color = (255, 100, 100)
+            else:
+                rest_text = "Ready!"
+                rest_color = (100, 255, 100)
+
+            rest_surf = self.font.render(rest_text, True, rest_color)
+            rest_x = (screen_w - rest_surf.get_width()) // 2
+            self.screen.blit(rest_surf, (rest_x, y_buttons - 30))
         else:
             progress = 1.0
 
